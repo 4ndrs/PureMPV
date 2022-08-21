@@ -5,7 +5,12 @@ mp.add_key_binding("ctrl+e", "get-timestamp", get_timestamp);
 mp.add_key_binding("ctrl+c", "get-crop", get_crop);
 mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 
-var pure_mode = false;
+var options = {
+  pure_mode: true,
+  selection: "primary", // primary or clipboard, see man xclip
+};
+mp.options.read_options(options, "PureMPV");
+
 var start_time = null;
 var end_time = null;
 
@@ -20,12 +25,11 @@ var crop = {
 function copy_to_selection(text) {
   var tmp_file = "/tmp/purempv.tmp";
   var xclip = "xclip";
-  var selection = "primary"; // primary, secondary, or clipboard; see man xclip
 
   // Write the text to the tmp file for xclip
   mp.utils.write_file("file://" + tmp_file, text);
 
-  mp.commandv("run", xclip, "-selection", selection, tmp_file);
+  mp.commandv("run", xclip, "-selection", options.selection, tmp_file);
   print_copy(text);
 
   // Clear the tmp file as it is no longer needed
@@ -34,7 +38,7 @@ function copy_to_selection(text) {
 
 function get_file_path() {
   var path = mp.get_property("path");
-  if (!pure_mode) {
+  if (!options.pure_mode) {
     copy_to_selection(path);
   } else {
     // if pure mode is on, copy the string: -i "input" -ss start_time -to end_time -lavfi crop=crop_coordinates
@@ -65,7 +69,7 @@ function get_timestamp() {
   var time_pos = mp.get_property("time-pos");
   var timestamp = new Date(time_pos * 1000).toISOString().substring(11, 23);
 
-  if (!pure_mode) {
+  if (!options.pure_mode) {
     copy_to_selection(timestamp);
   } else if (start_time == null) {
     start_time = timestamp;
@@ -118,7 +122,7 @@ function get_crop() {
     // Reset crop if this is the third time we hit the function
     reset_crop();
     return null;
-  } else if (!pure_mode) {
+  } else if (!options.pure_mode) {
     copy_to_selection(crop_txt());
     drawbox();
     cropping = false;
@@ -131,11 +135,11 @@ function get_crop() {
 }
 
 function toggle_puremode() {
-  if (!pure_mode) {
-    pure_mode = true;
+  if (!options.pure_mode) {
+    options.pure_mode = true;
     mp.osd_message("Pure Mode: ON");
   } else {
-    pure_mode = false;
+    options.pure_mode = false;
     mp.osd_message("Pure Mode: OFF");
   }
 }
