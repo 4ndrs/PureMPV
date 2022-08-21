@@ -16,18 +16,18 @@ The script can copy the following, by default (Pure Mode):
 - File path - <kbd>ctrl</kbd> + <kbd>w</kbd>
 
 To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or canceled), the copied string will be formatted like the following:
-```console
+```bash
 ffmpeg -i "/path/to/file" -ss hh:mm:ss -to hh:mm:ss -vf crop=w:h:x:y
 ```
 When omitting key combinations, the resulting string will have the values omitted as well, for example triggering just start time, and then the file path will yield the following string:
-```console
+```bash
 ffmpeg -i "/path/to/file" -ss hh:mm:ss
 ```
 
 To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **Pure Mode** activated.
 
 The default mode, and the selection to copy to can be changed creating configuration file under mpv/script-opts with the name **PureMPV.conf**, and inserting the following:
-```console
+```bash
 pure_mode=no
 selection=clipboard
 ```
@@ -39,3 +39,10 @@ Cropping coordinates and set start, end times, can be cancelled by pressing the 
 To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, position the mouse to the desired location to generate the cropping coordinates. A box will be drawn with ffmpeg filters, it only works if hwdec is set to auto-copy, or disabled. The box will be removed after cancelling the crop, or copying with <kbd>ctrl</kbd> + <kbd>w</kbd> in Pure Mode.
 
 ![vivyx](https://user-images.githubusercontent.com/31898900/185803902-33f26518-8eac-437e-b0e8-063bb6c9be28.gif)
+
+## Installation
+The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An apropriate folder will be created:
+```bash
+ $ cd ~/.config/mpv/scripts
+ $ git clone https://github.com/4ndrs/PureMPV.git
+```
