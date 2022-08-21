@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 mp.add_key_binding("ctrl+w", "get-file-path", get_file_path);
 mp.add_key_binding("ctrl+e", "get-timestamp", get_timestamp);
+mp.add_key_binding("ctrl+shift+e", "set-endtime", set_endtime);
 mp.add_key_binding("ctrl+c", "get-crop", get_crop);
 mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 
@@ -42,14 +43,12 @@ function get_file_path() {
     copy_to_selection(path);
   } else {
     // if pure mode is on, copy the string: -i "input" -ss start_time -to end_time -lavfi crop=crop_coordinates
-
     var timestamps = "";
     if (start_time != null && end_time != null) {
       timestamps = "-ss " + start_time + " -to " + end_time;
     } else if (start_time != null) {
       timestamps = "-ss " + start_time;
     } else if (end_time != null) {
-      // TODO: Set an additional key for setting end_time without start_time
       timestamps = "-to " + end_time;
     }
 
@@ -86,6 +85,18 @@ function get_timestamp() {
     mp.osd_message("Times reset");
     print("Times reset");
   }
+}
+
+// to generate -i file_path -to hh:mm:ss in pure mode
+function set_endtime() {
+  if (!options.pure_mode) {
+    return null;
+  }
+
+  var time_pos = mp.get_property("time-pos");
+  end_time = new Date(time_pos * 1000).toISOString().substring(11, 23);
+  mp.osd_message("Set end time: " + end_time);
+  print("Set end time: " + end_time);
 }
 
 function generate_crop() {
