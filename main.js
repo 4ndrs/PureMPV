@@ -172,6 +172,10 @@ function crop_txt() {
 }
 
 function reset_crop() {
+  if (crop["x"] == null) {
+    return null;
+  }
+
   crop["w"] = null;
   crop["h"] = null;
   crop["x"] = null;
