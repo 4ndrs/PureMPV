@@ -9,6 +9,7 @@ var pure_mode = false;
 var start_time = null;
 var end_time = null;
 
+var cropping = false;
 var crop = {
   w: null,
   h: null,
@@ -89,8 +90,8 @@ function generate_crop() {
   var y = mouse["y"];
 
   if (crop["x"] == null) {
-    crop["x"] = x;
-    crop["y"] = y;
+    crop["x"] = Math.abs(x);
+    crop["y"] = Math.abs(y);
   } else {
     // switch values if either x, or y is smaller than its counterpart in crop
     if (x < crop["x"] || y < crop["y"]) {
@@ -99,8 +100,8 @@ function generate_crop() {
     }
 
     // generate the width and height
-    crop["w"] = x - crop["x"];
-    crop["h"] = y - crop["y"];
+    crop["w"] = Math.abs(x - crop["x"]);
+    crop["h"] = Math.abs(y - crop["y"]);
 
     // call get_crop() to copy the values (w is not null)
     get_crop();
@@ -109,15 +110,23 @@ function generate_crop() {
 
 function get_crop() {
   if (crop["w"] == null) {
+    cropping = true;
     mp.osd_message("Cropping started");
     print("Cropping started");
     generate_crop();
+  } else if (!cropping) {
+    // Reset crop if this is the third time we hit the function
+    reset_crop();
+    return null;
   } else if (!pure_mode) {
     copy_to_selection(crop_txt());
-    reset_crop();
+    drawbox();
+    cropping = false;
   } else {
+    drawbox();
     mp.osd_message("Cropping ended");
     print("Cropping ended");
+    cropping = false;
   }
 }
 
@@ -136,6 +145,23 @@ function print_copy(text) {
   mp.osd_message("Copied: " + text);
 }
 
+function drawbox() {
+  mp.commandv(
+    "vf",
+    "add",
+    "@box:" +
+      "drawbox=w=" +
+      crop["w"] +
+      ":h=" +
+      crop["h"] +
+      ":x=" +
+      crop["x"] +
+      ":y=" +
+      crop["y"] +
+      ":color=deeppink"
+  );
+}
+
 function crop_txt() {
   // w:h:x:y
   return crop["w"] + ":" + crop["h"] + ":" + crop["x"] + ":" + crop["y"];
@@ -146,4 +172,6 @@ function reset_crop() {
   crop["h"] = null;
   crop["x"] = null;
   crop["y"] = null;
+
+  mp.commandv("vf", "remove", "@box");
 }
