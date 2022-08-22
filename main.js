@@ -10,6 +10,7 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 var options = {
   pure_mode: true,
   selection: "primary", // primary or clipboard, see man xclip
+  cropbox_animation: true,
 };
 mp.options.read_options(options, "PureMPV");
 
@@ -134,6 +135,9 @@ function get_crop() {
     if (!cropping) {
       mp.osd_message("Cropping started");
       print("Cropping started");
+      if (options.cropbox_animation) {
+        mp.observe_property("mouse-pos", "native", animate_cropbox);
+      }
       cropping = true;
     }
     generate_crop();
@@ -143,9 +147,15 @@ function get_crop() {
     return null;
   } else if (!options.pure_mode) {
     copy_to_selection(crop_txt());
+    if (options.cropbox_animation) {
+      mp.unobserve_property(animate_cropbox);
+    }
     drawbox();
     cropping = false;
   } else {
+    if (options.cropbox_animation) {
+      mp.unobserve_property(animate_cropbox);
+    }
     drawbox();
     mp.osd_message("Cropping ended");
     print("Cropping ended");
@@ -231,6 +241,41 @@ function drawbox() {
       crop["x"] +
       ":y=" +
       crop["y"] +
+      ":color=deeppink"
+  );
+}
+
+function animate_cropbox(name, tmp_mouse) {
+  var tmp_x = tmp_mouse["x"];
+  var tmp_y = tmp_mouse["y"];
+
+  var tmp_crop = {
+    w: null,
+    h: null,
+    x: crop["x"],
+    y: crop["y"],
+  };
+
+  if (tmp_x < tmp_crop["x"] || tmp_y < tmp_crop["y"]) {
+    tmp_crop["x"] = [tmp_x, (tmp_x = tmp_crop["x"])][0];
+    tmp_crop["y"] = [tmp_y, (tmp_y = tmp_crop["y"])][0];
+  }
+
+  tmp_crop["w"] = Math.abs(tmp_x - tmp_crop["x"]);
+  tmp_crop["h"] = Math.abs(tmp_y - tmp_crop["y"]);
+
+  mp.commandv(
+    "vf",
+    "add",
+    "@box:" +
+      "drawbox=w=" +
+      tmp_crop["w"] +
+      ":h=" +
+      tmp_crop["h"] +
+      ":x=" +
+      tmp_crop["x"] +
+      ":y=" +
+      tmp_crop["y"] +
       ":color=deeppink"
   );
 }
