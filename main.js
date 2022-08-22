@@ -1,6 +1,7 @@
 // Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 mp.add_key_binding("ctrl+w", "get-file-path", get_file_path);
+mp.add_key_binding("ctrl+shift+w", "generate-preview", generate_preview);
 mp.add_key_binding("ctrl+e", "get-timestamp", get_timestamp);
 mp.add_key_binding("ctrl+shift+e", "set-endtime", set_endtime);
 mp.add_key_binding("ctrl+c", "get-crop", get_crop);
@@ -143,6 +144,51 @@ function get_crop() {
     print("Cropping ended");
     cropping = false;
   }
+}
+
+function generate_preview() {
+  if (!options.pure_mode) {
+    return null;
+  }
+
+  // Show a looping preview of the current parameters in pure mode
+  var ffmpeg_params = " -f matroska -c:v libx264 -preset ultrafast -";
+  var mpv_params = " mpv --loop - ";
+
+  // mute audio in the preview if it's muted on the input
+  var mute_audio = mp.get_property("mute") == "yes" ? " -an" : "";
+  ffmpeg_params = mute_audio + ffmpeg_params;
+
+  var tmp_crop =
+    crop["w"] != null
+      ? " -vf crop=" +
+        crop["w"] +
+        ":" +
+        crop["h"] +
+        ":" +
+        crop["x"] +
+        ":" +
+        crop["y"]
+      : "";
+
+  var tmp_timestamp = start_time != null ? " -ss " + start_time + " " : "";
+  tmp_timestamp += end_time != null ? " -to " + end_time + " " : "";
+  tmp_path = mp.get_property("path");
+
+  var preview_command =
+    ' ffmpeg -hide_banner -i "' +
+    tmp_path +
+    '" ' +
+    tmp_timestamp +
+    " " +
+    tmp_crop +
+    " " +
+    ffmpeg_params +
+    "|" +
+    mpv_params;
+
+  print("Processing preview");
+  mp.commandv("run", "bash", "-c", "(" + preview_command + ")");
 }
 
 function toggle_puremode() {
