@@ -195,6 +195,7 @@ function generate_preview() {
     mpv_params;
 
   print("Processing preview");
+  mp.osd_message("Processing preview");
   mp.commandv("run", "bash", "-c", "(" + preview_command + ")");
 }
 
