@@ -10,7 +10,7 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 var options = {
   pure_mode: true,
   selection: "primary", // primary or clipboard, see man xclip
-  cropbox_animation: true,
+  cropbox_animation: false,
 };
 mp.options.read_options(options, "PureMPV");
 
