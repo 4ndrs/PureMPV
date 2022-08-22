@@ -15,7 +15,7 @@ The script can copy the following, by default (Pure Mode):
 - Cropping coordinates - <kbd>ctrl</kbd> + <kbd>c</kbd>
 - File path - <kbd>ctrl</kbd> + <kbd>w</kbd>
 
-To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or canceled), the copied string will be formatted like the following:
+To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or cancelled), the copied string will be formatted like the following:
 ```bash
 ffmpeg -i "/path/to/file" -ss hh:mm:ss -to hh:mm:ss -vf crop=w:h:x:y
 ```
@@ -41,7 +41,7 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 ![vivyx](https://user-images.githubusercontent.com/31898900/185803902-33f26518-8eac-437e-b0e8-063bb6c9be28.gif)
 
 ## Installation
-The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An apropriate folder will be created:
+The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
 ```bash
  $ cd ~/.config/mpv/scripts
  $ git clone https://github.com/4ndrs/PureMPV.git
