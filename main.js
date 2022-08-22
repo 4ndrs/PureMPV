@@ -131,9 +131,11 @@ function generate_crop() {
 
 function get_crop() {
   if (crop["w"] == null) {
-    cropping = true;
-    mp.osd_message("Cropping started");
-    print("Cropping started");
+    if (!cropping) {
+      mp.osd_message("Cropping started");
+      print("Cropping started");
+      cropping = true;
+    }
     generate_crop();
   } else if (!cropping) {
     // Reset crop if this is the third time we hit the function
