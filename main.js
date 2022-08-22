@@ -64,7 +64,6 @@ function get_file_path() {
     }
 
     copy_to_selection("ffmpeg " + input + " " + timestamps + " " + crop_lavfi);
-    reset_crop();
   }
 }
 
