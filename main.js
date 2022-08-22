@@ -31,17 +31,14 @@ var crop = {
 };
 
 function copy_to_selection(text) {
-  var tmp_file = "/tmp/purempv.tmp";
-  var xclip = "xclip";
-
-  // Write the text to the tmp file for xclip
-  mp.utils.write_file("file://" + tmp_file, text);
-
-  mp.commandv("run", xclip, "-selection", options.selection, tmp_file);
+  selection = options.selection == "primary" ? "primary" : "clipboard";
+  mp.commandv(
+    "run",
+    "bash",
+    "-c",
+    "(printf '" + text + "'| xclip" + " -selection " + selection + ")"
+  );
   print_copy(text);
-
-  // Clear the tmp file as it is no longer needed
-  mp.utils.write_file("file://" + tmp_file, "");
 }
 
 function get_file_path() {
@@ -224,8 +221,8 @@ function toggle_puremode() {
 }
 
 function print_copy(text) {
-  print("Copied: " + text);
-  mp.osd_message("Copied: " + text);
+  print("Copied to " + options.selection + ": " + text);
+  mp.osd_message("Copied to " + options.selection + ": " + text);
 }
 
 function drawbox() {
