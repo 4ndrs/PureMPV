@@ -13,6 +13,11 @@ var options = {
 };
 mp.options.read_options(options, "PureMPV");
 
+if (!options.pure_mode) {
+  mp.remove_key_binding("generate-preview");
+  mp.remove_key_binding("set-endtime");
+}
+
 var start_time = null;
 var end_time = null;
 
@@ -194,9 +199,13 @@ function generate_preview() {
 function toggle_puremode() {
   if (!options.pure_mode) {
     options.pure_mode = true;
+    mp.add_key_binding("ctrl+shift+w", "generate-preview", generate_preview);
+    mp.add_key_binding("ctrl+shift+e", "set-endtime", set_endtime);
     mp.osd_message("Pure Mode: ON");
   } else {
     options.pure_mode = false;
+    mp.remove_key_binding("generate-preview");
+    mp.remove_key_binding("set-endtime");
     mp.osd_message("Pure Mode: OFF");
   }
 }
