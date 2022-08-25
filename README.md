@@ -4,7 +4,8 @@ Script to get the timestamps, cropping coordinates, and file path of the playing
 
 ## Usage
 
-[vivy test](https://user-images.githubusercontent.com/31898900/185803404-352b8ff6-06f5-4fa7-9ea6-076cf153b002.mp4)
+[vivy_test](https://user-images.githubusercontent.com/31898900/186554920-6ae33c4a-e510-4109-87f4-17ec1f19ca51.webm)
+
 
 The script by default registers the start and end times by pressing <kbd>ctrl</kbd> + <kbd>e</kbd>, and waits until the user presses <kbd>ctrl</kbd> + <kbd>w</kbd> to copy the data to the primary X selection.
 
@@ -35,11 +36,24 @@ With the Pure Mode deactivated, the script will copy the resulting value of the 
 
 Cropping coordinates and set start, end times, can be cancelled by pressing the same combination of keys a third time.
 
+A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>w</kbd> in Pure Mode.
+
 ## Cropping
 To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, position the mouse to the desired location to generate the cropping coordinates. A box will be drawn with ffmpeg filters, it only works if hwdec is set to auto-copy, or disabled. Animation for the crop box is available if desired, it can be enabled inserting ```cropbox_animation=yes``` in the configuration file. The box will be removed after cancelling the crop.
 
-[comment]:![vivyx](https://user-images.githubusercontent.com/31898900/185803902-33f26518-8eac-437e-b0e8-063bb6c9be28.gif)
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
+
+## PureBox
+An alternative to drawing the cropbox with ffmpeg filters is using PureBox, which can be activated setting ```pure_box=yes``` in the configuration file. PureBox uses Xlib to draw the box on the window, which is much faster, less resource intensive, and works with hwdec=yes. It can be installed using pip:
+```bash
+pip install purebox
+```
+or
+```bash
+git clone https://github.com/4ndrs/PureBox.git
+cd PureBox
+pip install .
+```
 
 ## Installation
 The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
