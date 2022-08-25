@@ -44,7 +44,7 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
 ## PureBox
-An alternative to drawing the cropbox with ffmpeg filters is using PureBox, which can be activated setting ```pure_box=yes``` in the configuration file. PureBox uses Xlib to draw the box on the window, which is much faster, less resource intensive, and works with hwdec=yes. It can be installed using pip:
+An alternative to drawing the cropbox with ffmpeg filters is using [PureBox](https://github.com/4ndrs/PureBox), which can be activated setting ```pure_box=yes``` in the configuration file. PureBox uses Xlib to draw the box on the window, which is much faster, less resource intensive, and works with hwdec=yes. It can be installed using pip:
 ```bash
 pip install purebox
 ```
