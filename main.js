@@ -29,6 +29,8 @@ var start_time = null;
 var end_time = null;
 
 var cropping = false;
+var const_x = null;
+var const_y = null;
 var crop = {
   w: null,
   h: null,
@@ -135,18 +137,32 @@ function generate_crop() {
   var y = mouse["y"];
 
   if (crop["x"] == null) {
-    crop["x"] = Math.abs(x);
-    crop["y"] = Math.abs(y);
+    crop["x"] = x;
+    crop["y"] = y;
+    const_x = x;
+    const_y = y;
   } else {
-    // switch values if either x, or y is smaller than its counterpart in crop
-    if (x < crop["x"] || y < crop["y"]) {
-      crop["x"] = [x, (x = crop["x"])][0];
-      crop["y"] = [y, (y = crop["y"])][0];
+    if (x < const_x) {
+      crop["x"] = x;
+      x = const_x;
+      crop["x"] = Math.min(x, crop["x"]);
+      crop["w"] = x - crop["x"];
+    } else {
+      x = Math.max(x, crop["x"]);
+      crop["x"] = Math.min(x, crop["x"]);
+      crop["w"] = x - crop["x"];
     }
 
-    // generate the width and height
-    crop["w"] = Math.abs(x - crop["x"]);
-    crop["h"] = Math.abs(y - crop["y"]);
+    if (y < const_y) {
+      crop["y"] = y;
+      y = const_y;
+      crop["y"] = Math.min(y, crop["y"]);
+      crop["h"] = y - crop["y"];
+    } else {
+      y = Math.max(y, crop["y"]);
+      crop["y"] = Math.min(y, crop["y"]);
+      crop["h"] = y - crop["y"];
+    }
 
     // call get_crop() to copy the values (w is not null)
     get_crop();
@@ -269,6 +285,10 @@ function drawbox() {
 }
 
 function animate_cropbox(name, tmp_mouse) {
+  if (const_x == null || const_y == null) {
+    return null;
+  }
+
   var tmp_x = tmp_mouse["x"];
   var tmp_y = tmp_mouse["y"];
 
@@ -279,13 +299,27 @@ function animate_cropbox(name, tmp_mouse) {
     y: crop["y"],
   };
 
-  if (tmp_x < tmp_crop["x"] || tmp_y < tmp_crop["y"]) {
-    tmp_crop["x"] = [tmp_x, (tmp_x = tmp_crop["x"])][0];
-    tmp_crop["y"] = [tmp_y, (tmp_y = tmp_crop["y"])][0];
+  if (tmp_x < const_x) {
+    tmp_crop["x"] = tmp_x;
+    tmp_x = const_x;
+    tmp_crop["x"] = Math.min(tmp_x, tmp_crop["x"]);
+    tmp_crop["w"] = tmp_x - tmp_crop["x"];
+  } else {
+    tmp_x = Math.max(tmp_x, tmp_crop["x"]);
+    tmp_crop["x"] = Math.min(tmp_x, tmp_crop["x"]);
+    tmp_crop["w"] = tmp_x - tmp_crop["x"];
   }
 
-  tmp_crop["w"] = Math.abs(tmp_x - tmp_crop["x"]);
-  tmp_crop["h"] = Math.abs(tmp_y - tmp_crop["y"]);
+  if (tmp_y < const_y) {
+    tmp_crop["y"] = tmp_y;
+    tmp_y = const_y;
+    tmp_crop["y"] = Math.min(tmp_y, tmp_crop["y"]);
+    tmp_crop["h"] = tmp_y - tmp_crop["y"];
+  } else {
+    tmp_y = Math.max(tmp_y, tmp_crop["y"]);
+    tmp_crop["y"] = Math.min(tmp_y, tmp_crop["y"]);
+    tmp_crop["h"] = tmp_y - tmp_crop["y"];
+  }
 
   mp.commandv(
     "vf",
@@ -317,6 +351,9 @@ function reset_crop() {
   crop["h"] = null;
   crop["x"] = null;
   crop["y"] = null;
+
+  const_x = null;
+  const_y = null;
 
   mp.commandv("vf", "remove", "@box");
 }
