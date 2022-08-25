@@ -9,6 +9,7 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 
 var options = {
   pure_mode: true,
+  pure_box: false,
   selection: "primary", // primary or clipboard, see man xclip
   cropbox_animation: false,
 };
@@ -17,6 +18,11 @@ mp.options.read_options(options, "PureMPV");
 if (!options.pure_mode) {
   mp.remove_key_binding("generate-preview");
   mp.remove_key_binding("set-endtime");
+}
+
+if (options.pure_box) {
+  mp.remove_key_binding("get-crop");
+  mp.add_key_binding("ctrl+c", "get-crop", get_crop_purebox);
 }
 
 var start_time = null;
@@ -29,6 +35,27 @@ var crop = {
   x: null,
   y: null,
 };
+
+function get_crop_purebox() {
+  var mouse = mp.get_property_native("mouse-pos");
+  var pid = mp.utils.getpid();
+  var x = mouse["x"];
+  var y = mouse["y"];
+
+  var purebox = mp.command_native({
+    name: "subprocess",
+    args: ["purebox", pid.toString(), x.toString(), y.toString()],
+    capture_stdout: true,
+  });
+
+  if (purebox.status == 0) {
+    purebox = purebox.stdout.split(", ");
+    crop["x"] = purebox[0];
+    crop["y"] = purebox[1];
+    crop["w"] = purebox[2];
+    crop["h"] = purebox[3];
+  }
+}
 
 function copy_to_selection(text) {
   selection = options.selection == "primary" ? "primary" : "clipboard";
