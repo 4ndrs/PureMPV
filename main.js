@@ -56,6 +56,10 @@ function get_crop_purebox() {
     crop["y"] = purebox[1];
     crop["w"] = purebox[2];
     crop["h"] = purebox[3];
+
+    if (!options.pure_mode) {
+      copy_to_selection(crop_txt());
+    }
   }
 }
 
