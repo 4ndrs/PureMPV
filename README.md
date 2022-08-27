@@ -18,11 +18,11 @@ The script can copy the following, by default (Pure Mode):
 
 To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or cancelled), the copied string will be formatted like the following:
 ```bash
-ffmpeg -i "/path/to/file" -ss hh:mm:ss -to hh:mm:ss -vf crop=w:h:x:y
+ffmpeg -i -ss hh:mm:ss -to hh:mm:ss "/path/to/file" -vf crop=w:h:x:y
 ```
 When omitting key combinations, the resulting string will have the values omitted as well, for example triggering just start time, and then the file path will yield the following string:
 ```bash
-ffmpeg -i "/path/to/file" -ss hh:mm:ss
+ffmpeg -ss hh:mm:ss -i "/path/to/file"
 ```
 
 To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **Pure Mode** activated.
@@ -32,11 +32,13 @@ The default mode, and the selection to copy to can be changed creating configura
 pure_mode=no
 selection=clipboard
 ```
-With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without the "ffmpeg -i" prepended, for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>ctrl</kbd> + <kbd>c</kbd> will copy just the cropping coordinates.
+With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>ctrl</kbd> + <kbd>c</kbd> will copy just the cropping coordinates.
 
 Cropping coordinates and set start, end times, can be cancelled by pressing the same combination of keys a third time.
 
 A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>w</kbd> in Pure Mode.
+
+Output seeking can be enabled inserting ```input_seeking=no``` in the configuration file.
 
 ## Cropping
 To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, position the mouse to the desired location to generate the cropping coordinates. A box will be drawn with ffmpeg filters, it only works if hwdec is set to auto-copy, or disabled. Animation for the crop box is available if desired, it can be enabled inserting ```cropbox_animation=yes``` in the configuration file. The box will be removed after cancelling the crop.

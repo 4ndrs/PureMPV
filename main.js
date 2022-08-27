@@ -10,6 +10,7 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 var options = {
   pure_mode: true,
   pure_box: false,
+  input_seeking: true,
   selection: "primary", // primary or clipboard, see man xclip
   cropbox_animation: false,
 };
@@ -79,7 +80,7 @@ function get_file_path() {
   if (!options.pure_mode) {
     copy_to_selection(path);
   } else {
-    // if pure mode is on, copy the string: -i "input" -ss start_time -to end_time -lavfi crop=crop_coordinates
+    // if pure mode is on, copy the string: -ss start_time -to end_time -i "input" -lavfi crop=crop_coordinates
     var timestamps = "";
     if (start_time != null && end_time != null) {
       timestamps = "-ss " + start_time + " -to " + end_time;
@@ -96,7 +97,15 @@ function get_file_path() {
       crop_lavfi = "-lavfi crop=" + crop_txt();
     }
 
-    copy_to_selection("ffmpeg " + input + " " + timestamps + " " + crop_lavfi);
+    if (options.input_seeking) {
+      copy_to_selection(
+        "ffmpeg " + timestamps + " " + input + " " + crop_lavfi
+      );
+    } else {
+      copy_to_selection(
+        "ffmpeg " + input + " " + timestamps + " " + crop_lavfi
+      );
+    }
   }
 }
 
@@ -212,7 +221,7 @@ function generate_preview() {
   }
 
   // Show a looping preview of the current parameters in pure mode
-  var ffmpeg_params = " -f matroska -c:v libx264 -preset ultrafast -";
+  var ffmpeg_params = " -f matroska -c:v libx264 -preset ultrafast - ";
   var mpv_params = " mpv --loop - ";
 
   // mute audio in the preview if it's muted on the input
@@ -228,24 +237,29 @@ function generate_preview() {
         ":" +
         crop["x"] +
         ":" +
-        crop["y"]
+        crop["y"] +
+        " "
       : "";
 
   var tmp_timestamp = start_time != null ? " -ss " + start_time + " " : "";
   tmp_timestamp += end_time != null ? " -to " + end_time + " " : "";
-  tmp_path = mp.get_property("path");
+  tmp_path = '-i "' + mp.get_property("path") + '" ';
 
-  var preview_command =
-    ' ffmpeg -hide_banner -i "' +
-    tmp_path +
-    '" ' +
-    tmp_timestamp +
-    " " +
-    tmp_crop +
-    " " +
-    ffmpeg_params +
-    "|" +
-    mpv_params;
+  var preview_command = options.input_seeking
+    ? "ffmpeg -hide_banner " +
+      tmp_timestamp +
+      tmp_path +
+      tmp_crop +
+      ffmpeg_params +
+      "|" +
+      mpv_params
+    : "ffmpeg -hide_banner " +
+      tmp_path +
+      tmp_timestamp +
+      tmp_crop +
+      ffmpeg_params +
+      "|" +
+      mpv_params;
 
   print("Processing preview");
   mp.osd_message("Processing preview");
