@@ -18,7 +18,7 @@ The script can copy the following, by default (Pure Mode):
 
 To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or cancelled), the copied string will be formatted like the following:
 ```bash
-ffmpeg -i -ss hh:mm:ss -to hh:mm:ss "/path/to/file" -vf crop=w:h:x:y
+ffmpeg -ss hh:mm:ss -to hh:mm:ss -i "/path/to/file" -vf crop=w:h:x:y
 ```
 When omitting key combinations, the resulting string will have the values omitted as well, for example triggering just start time, and then the file path will yield the following string:
 ```bash
