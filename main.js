@@ -226,7 +226,10 @@ function generate_preview() {
 
   // mute audio in the preview if it's muted on the input
   var mute_audio = mp.get_property("mute") == "yes" ? " -an" : "";
-  ffmpeg_params = mute_audio + ffmpeg_params;
+  ffmpeg_params =
+    " -map 0:v -map 0:a -map_metadata -1 -map_chapters -1" +
+    mute_audio +
+    ffmpeg_params;
 
   var tmp_crop =
     crop["w"] != null
