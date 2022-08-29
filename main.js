@@ -10,6 +10,7 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 var options = {
   pure_mode: true,
   pure_box: false,
+  ffmpeg_params: "",
   input_seeking: true,
   selection: "primary", // primary or clipboard, see man xclip
   cropbox_animation: false,
@@ -77,7 +78,6 @@ function copy_to_selection(text) {
 
 function get_file_path() {
   var path = mp.get_property("path");
-  print(path);
   if (!options.pure_mode) {
     copy_to_selection(path);
   } else {
@@ -110,7 +110,7 @@ function get_file_path() {
 
     var crop_lavfi = "";
     if (crop["w"] != null) {
-      crop_lavfi = "-lavfi crop=" + crop_txt();
+      crop_lavfi = "-lavfi crop=" + crop_txt() + " ";
     }
 
     if (options.input_seeking) {
@@ -119,13 +119,22 @@ function get_file_path() {
       for (var i = 0; i < input.length; i++) {
         timestamps_inputs += " " + timestamps + input[i];
       }
-      copy_to_selection("ffmpeg" + timestamps_inputs + " " + crop_lavfi);
+      copy_to_selection(
+        "ffmpeg" + timestamps_inputs + " " + crop_lavfi + options.ffmpeg_params
+      );
     } else {
       var inputs = "";
       for (var i = 0; i < input.length; i++) {
         inputs += " " + input[i];
       }
-      copy_to_selection("ffmpeg" + inputs + " " + timestamps + crop_lavfi);
+      copy_to_selection(
+        "ffmpeg" +
+          inputs +
+          " " +
+          timestamps +
+          crop_lavfi +
+          options.ffmpeg_params
+      );
     }
   }
 }
