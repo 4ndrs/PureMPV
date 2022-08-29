@@ -70,27 +70,43 @@ function copy_to_selection(text) {
     "run",
     "bash",
     "-c",
-    "(printf '" + text + "'| xclip" + " -selection " + selection + ")"
+    "(echo -n '" + text + "'| xclip" + " -selection " + selection + ")"
   );
   print_copy(text);
 }
 
 function get_file_path() {
   var path = mp.get_property("path");
+  print(path);
   if (!options.pure_mode) {
     copy_to_selection(path);
   } else {
     // if pure mode is on, copy the string: -ss start_time -to end_time -i "input" -lavfi crop=crop_coordinates
     var timestamps = "";
     if (start_time != null && end_time != null) {
-      timestamps = "-ss " + start_time + " -to " + end_time;
+      timestamps = "-ss " + start_time + " -to " + end_time + " ";
     } else if (start_time != null) {
-      timestamps = "-ss " + start_time;
+      timestamps = "-ss " + start_time + " ";
     } else if (end_time != null) {
-      timestamps = "-to " + end_time;
+      timestamps = "-to " + end_time + " ";
     }
 
-    var input = '-i "' + path + '"';
+    var input = [];
+    // if path starts with http and is a YT link copy the stream media urls
+    if (
+      path.match(/^http/) &&
+      (path.indexOf("youtube") !== -1 || path.indexOf("youtu.be") !== -1)
+    ) {
+      var urls = mp.get_property("stream-open-filename").split(";");
+      for (var i = 0; i < urls.length; i++) {
+        if (urls[i].indexOf("googlevideo") !== -1) {
+          // copy each url with -i prepended to input
+          input.push('-i "' + urls[i].match(/http.*/)[0] + '"');
+        }
+      }
+    } else {
+      input.push('-i "' + path + '"');
+    }
 
     var crop_lavfi = "";
     if (crop["w"] != null) {
@@ -98,13 +114,18 @@ function get_file_path() {
     }
 
     if (options.input_seeking) {
-      copy_to_selection(
-        "ffmpeg " + timestamps + " " + input + " " + crop_lavfi
-      );
+      var timestamps_inputs = "";
+      // prepend timestamps to each input
+      for (var i = 0; i < input.length; i++) {
+        timestamps_inputs += " " + timestamps + input[i];
+      }
+      copy_to_selection("ffmpeg" + timestamps_inputs + " " + crop_lavfi);
     } else {
-      copy_to_selection(
-        "ffmpeg " + input + " " + timestamps + " " + crop_lavfi
-      );
+      var inputs = "";
+      for (var i = 0; i < input.length; i++) {
+        inputs += " " + input[i];
+      }
+      copy_to_selection("ffmpeg" + inputs + " " + timestamps + crop_lavfi);
     }
   }
 }
@@ -216,6 +237,8 @@ function get_crop() {
 }
 
 function generate_preview() {
+  // TODO: refactor, merge with get file path
+
   if (!options.pure_mode) {
     return null;
   }
@@ -227,7 +250,7 @@ function generate_preview() {
   // mute audio in the preview if it's muted on the input
   var mute_audio = mp.get_property("mute") == "yes" ? " -an" : "";
   ffmpeg_params =
-    " -map 0:v -map 0:a -map_metadata -1 -map_chapters -1" +
+    " -map 0:v? -map 0:a? -map 1:a? -map 1:v? -map_metadata -1 -map_chapters -1" +
     mute_audio +
     ffmpeg_params;
 
@@ -246,23 +269,51 @@ function generate_preview() {
 
   var tmp_timestamp = start_time != null ? " -ss " + start_time + " " : "";
   tmp_timestamp += end_time != null ? " -to " + end_time + " " : "";
-  tmp_path = '-i "' + mp.get_property("path") + '" ';
 
-  var preview_command = options.input_seeking
-    ? "ffmpeg -hide_banner " +
-      tmp_timestamp +
-      tmp_path +
+  tmp_path = mp.get_property("path");
+
+  var tmp_input = [];
+  if (
+    tmp_path.match(/^http/) &&
+    (tmp_path.indexOf("youtube") !== -1 || tmp_path.indexOf("youtu.be") !== -1)
+  ) {
+    var tmp_urls = mp.get_property("stream-open-filename").split(";");
+    for (var i = 0; i < tmp_urls.length; i++) {
+      if (tmp_urls[i].indexOf("googlevideo") !== -1) {
+        tmp_input.push('-i "' + tmp_urls[i].match(/http.*/)[0] + '"');
+      }
+    }
+  } else {
+    tmp_input.push('-i "' + tmp_path + '"');
+  }
+
+  var preview_command = "";
+  if (options.input_seeking) {
+    var tmp_timestamps_inputs = "";
+    for (var i = 0; i < tmp_input.length; i++) {
+      tmp_timestamps_inputs += " " + tmp_timestamp + tmp_input[i];
+    }
+    preview_command =
+      "ffmpeg -hide_banner" +
+      tmp_timestamps_inputs +
       tmp_crop +
       ffmpeg_params +
       "|" +
-      mpv_params
-    : "ffmpeg -hide_banner " +
-      tmp_path +
+      mpv_params;
+  } else {
+    var tmp_inputs = "";
+    for (var i = 0; i < tmp_input.length; i++) {
+      tmp_inputs += " " + tmp_input[i];
+    }
+    preview_command =
+      "ffmpeg -hide_banner" +
+      tmp_inputs +
       tmp_timestamp +
       tmp_crop +
       ffmpeg_params +
       "|" +
       mpv_params;
+  }
 
   print("Processing preview");
   mp.osd_message("Processing preview");
