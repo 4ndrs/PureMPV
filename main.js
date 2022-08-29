@@ -259,9 +259,7 @@ function generate_preview() {
   // mute audio in the preview if it's muted on the input
   var mute_audio = mp.get_property("mute") == "yes" ? " -an" : "";
   ffmpeg_params =
-    " -map 0:v? -map 0:a? -map 1:a? -map 1:v? -map_metadata -1 -map_chapters -1" +
-    mute_audio +
-    ffmpeg_params;
+    "-map_metadata -1 -map_chapters -1" + mute_audio + ffmpeg_params;
 
   var tmp_crop =
     crop["w"] != null
@@ -295,6 +293,14 @@ function generate_preview() {
   } else {
     tmp_input.push('-i "' + tmp_path + '"');
   }
+
+  // Generate mappings with the number of inputs
+  var mappings = "";
+  for (var i = 0; i < tmp_input.length; i++) {
+    mappings += " -map " + i + ":v? -map " + i + ":a? ";
+  }
+
+  ffmpeg_params = mappings + ffmpeg_params;
 
   var preview_command = "";
   if (options.input_seeking) {
