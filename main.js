@@ -41,6 +41,12 @@ var crop = {
 };
 
 function get_crop_purebox() {
+  if (crop["w"] != null) {
+    // just reset the crop if it already has been set
+    reset_crop();
+    return null;
+  }
+
   var video_width = mp.get_property("width");
   var video_height = mp.get_property("height");
   var mouse = mp.get_property_native("mouse-pos");
@@ -451,5 +457,10 @@ function reset_crop() {
   const_x = null;
   const_y = null;
 
-  mp.commandv("vf", "remove", "@box");
+  if (!options.pure_box) {
+    mp.commandv("vf", "remove", "@box");
+  }
+
+  print("Crop reset");
+  mp.osd_message("Crop reset");
 }
