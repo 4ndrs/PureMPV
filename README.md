@@ -27,14 +27,14 @@ ffmpeg -ss hh:mm:ss -i "/path/to/file"
 
 To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **Pure Mode** activated.
 
-The default mode, and the selection to copy to can be changed creating configuration file under mpv/script-opts with the name **PureMPV.conf**, and inserting the following:
+The default mode, and the selection to copy to can be changed creating a configuration file under ```$HOME/.config/mpv/script-opts/``` with the name **PureMPV.conf**, and inserting the following:
 ```bash
 pure_mode=no
 selection=clipboard
 ```
 With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>ctrl</kbd> + <kbd>c</kbd> will copy just the cropping coordinates.
 
-Cropping coordinates and set start, end times, can be cancelled by pressing the same combination of keys a third time.
+Cropping coordinates, and set start & end times, can be cancelled by pressing their own key combination a third time.
 
 A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>w</kbd> in Pure Mode.
 
