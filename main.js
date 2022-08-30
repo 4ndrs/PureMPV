@@ -41,6 +41,8 @@ var crop = {
 };
 
 function get_crop_purebox() {
+  var video_width = mp.get_property("width");
+  var video_height = mp.get_property("height");
   var mouse = mp.get_property_native("mouse-pos");
   var pid = mp.utils.getpid();
   var x = mouse["x"];
@@ -48,7 +50,14 @@ function get_crop_purebox() {
 
   var purebox = mp.command_native({
     name: "subprocess",
-    args: ["purebox", pid.toString(), x.toString(), y.toString()],
+    args: [
+      "purebox",
+      pid.toString(),
+      x.toString(),
+      y.toString(),
+      video_width.toString(),
+      video_height.toString(),
+    ],
     capture_stdout: true,
   });
 
