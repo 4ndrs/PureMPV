@@ -164,7 +164,6 @@ function get_file_path(purewebm, purewebm_params) {
       }
       if (purewebm_params) {
         command = command.concat(["--extra_params", options.purewebm_params]);
-        print(command);
       }
 
       mp.command_native({
