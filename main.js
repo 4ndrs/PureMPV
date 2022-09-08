@@ -10,6 +10,8 @@ mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 var options = {
   pure_mode: true,
   pure_box: false,
+  pure_webm: false,
+  purewebm_params: "",
   ffmpeg_params: "",
   input_seeking: true,
   selection: "primary", // primary or clipboard, see man xclip
@@ -27,6 +29,11 @@ if (options.pure_box) {
   mp.add_key_binding("ctrl+c", "get-crop", get_crop_purebox);
 }
 
+if (options.pure_webm) {
+  mp.add_key_binding("ctrl+o", "purewebm", encode_purewebm);
+  mp.add_key_binding("ctrl+shift+o", "purewebm-params", encode_purewebm_params);
+}
+
 var start_time = null;
 var end_time = null;
 
@@ -39,6 +46,16 @@ var crop = {
   x: null,
   y: null,
 };
+
+function encode_purewebm() {
+  // Runs PureWebM with the set instructions
+  get_file_path(true, false);
+}
+
+function encode_purewebm_params() {
+  // Runs PureWebM with the set instructions plus purewebm_params
+  get_file_path(true, true);
+}
 
 function get_crop_purebox() {
   if (crop["w"] != null) {
@@ -91,7 +108,7 @@ function copy_to_selection(text) {
   print_copy(text);
 }
 
-function get_file_path() {
+function get_file_path(purewebm, purewebm_params) {
   var path = mp.get_property("path");
   if (!options.pure_mode) {
     copy_to_selection(path);
@@ -115,12 +132,20 @@ function get_file_path() {
       var urls = mp.get_property("stream-open-filename").split(";");
       for (var i = 0; i < urls.length; i++) {
         if (urls[i].indexOf("googlevideo") !== -1) {
-          // copy each url with -i prepended to input
-          input.push('-i "' + urls[i].match(/http.*/)[0] + '"');
+          if (!purewebm) {
+            // copy each url with -i prepended to input
+            input.push('-i "' + urls[i].match(/http.*/)[0] + '"');
+          } else {
+            input.push(urls[i].match(/http.*/)[0]);
+          }
         }
       }
     } else {
-      input.push('-i "' + path + '"');
+      if (!purewebm) {
+        input.push('-i "' + path + '"');
+      } else {
+        input.push(path);
+      }
     }
 
     var crop_lavfi = "";
@@ -128,7 +153,26 @@ function get_file_path() {
       crop_lavfi = "-lavfi crop=" + crop_txt() + " ";
     }
 
-    if (options.input_seeking) {
+    if (purewebm) {
+      command = ["purewebm"].concat(input);
+
+      if (crop_lavfi) {
+        command = command.concat(crop_lavfi.trim().split(" "));
+      }
+      if (timestamps) {
+        command = command.concat(timestamps.trim().split(" "));
+      }
+      if (purewebm_params) {
+        command = command.concat(["--extra_params", options.purewebm_params]);
+        print(command);
+      }
+
+      mp.command_native({
+        name: "subprocess",
+        args: command,
+        detach: true,
+      });
+    } else if (options.input_seeking) {
       var timestamps_inputs = "";
       // prepend timestamps to each input
       for (var i = 0; i < input.length; i++) {
