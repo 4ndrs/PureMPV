@@ -136,6 +136,7 @@ function get_file_path(purewebm, purewebm_params) {
             // copy each url with -i prepended to input
             input.push('-i "' + urls[i].match(/http.*/)[0] + '"');
           } else {
+            input.push("-i");
             input.push(urls[i].match(/http.*/)[0]);
           }
         }
@@ -144,6 +145,7 @@ function get_file_path(purewebm, purewebm_params) {
       if (!purewebm) {
         input.push('-i "' + path + '"');
       } else {
+        input.push("-i");
         input.push(path);
       }
     }
@@ -158,6 +160,9 @@ function get_file_path(purewebm, purewebm_params) {
 
       if (crop_lavfi) {
         command = command.concat(crop_lavfi.trim().split(" "));
+      }
+      if (mp.get_property("sub-visibility") == "yes" && !purewebm_params) {
+        command = command.concat(["-subs"]);
       }
       if (timestamps) {
         command = command.concat(timestamps.trim().split(" "));
