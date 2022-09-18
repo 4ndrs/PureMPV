@@ -32,6 +32,8 @@ if (options.pure_box) {
 if (options.pure_webm) {
   mp.add_key_binding("ctrl+o", "purewebm", encode_purewebm);
   mp.add_key_binding("ctrl+shift+o", "purewebm-params", encode_purewebm_params);
+  mp.add_key_binding("ctrl+v", "toggle-burn-subs", toggle_burn_subs);
+  var burn_subs = false;
 }
 
 var start_time = null;
@@ -55,6 +57,16 @@ function encode_purewebm() {
 function encode_purewebm_params() {
   // Runs PureWebM with the set instructions plus purewebm_params
   get_file_path(true, true);
+}
+
+function toggle_burn_subs() {
+  if (burn_subs) {
+    burn_subs = false;
+    mp.osd_message("Burn subtitles: no");
+  } else {
+    burn_subs = true;
+    mp.osd_message("Burn subtitles: yes");
+  }
 }
 
 function get_crop_purebox() {
@@ -161,7 +173,7 @@ function get_file_path(purewebm, purewebm_params) {
       if (crop_lavfi) {
         command = command.concat(crop_lavfi.trim().split(" "));
       }
-      if (mp.get_property("sub-visibility") == "yes" && !purewebm_params) {
+      if (!purewebm_params && burn_subs) {
         command = command.concat(["-subs"]);
       }
       if (timestamps) {
