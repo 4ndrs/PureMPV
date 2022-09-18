@@ -8,6 +8,7 @@ mp.add_key_binding("ctrl+c", "get-crop", get_crop);
 mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 
 var options = {
+  copy_mode: "ffmpeg",
   pure_mode: true,
   pure_box: false,
   pure_webm: false,
@@ -194,22 +195,42 @@ function get_file_path(purewebm, purewebm_params) {
       for (var i = 0; i < input.length; i++) {
         timestamps_inputs += " " + timestamps + input[i];
       }
-      copy_to_selection(
-        "ffmpeg" + timestamps_inputs + " " + crop_lavfi + options.ffmpeg_params
-      );
+      switch (options.copy_mode) {
+        case "ffmpeg":
+          copy_to_selection(
+            "ffmpeg" +
+              timestamps_inputs +
+              " " +
+              crop_lavfi +
+              options.ffmpeg_params
+          );
+          break;
+        case "purewebm":
+          copy_to_selection("purewebm" + timestamps_inputs + " " + crop_lavfi);
+          break;
+      }
     } else {
       var inputs = "";
       for (var i = 0; i < input.length; i++) {
         inputs += " " + input[i];
       }
-      copy_to_selection(
-        "ffmpeg" +
-          inputs +
-          " " +
-          timestamps +
-          crop_lavfi +
-          options.ffmpeg_params
-      );
+      switch (options.copy_mode) {
+        case "ffmpeg":
+          copy_to_selection(
+            "ffmpeg" +
+              inputs +
+              " " +
+              timestamps +
+              crop_lavfi +
+              options.ffmpeg_params
+          );
+          break;
+        case "purewebm":
+          copy_to_selection(
+            "purewebm" + inputs + " " + timestamps + crop_lavfi
+          );
+          break;
+      }
     }
   }
 }
