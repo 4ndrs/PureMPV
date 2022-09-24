@@ -57,6 +57,17 @@ cd PureBox
 pip install .
 ```
 
+## PureWebM
+Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
+
+With PureWebM support enabled, the key bindings <kbd>ctrl</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>v</kbd> will be set, making it possible to make simple webms with the set parameters (<kbd>ctrl</kbd>+<kbd>o</kbd>), and with the set ```purewebm_params``` in the configuration file (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>). PureWebM allows for the use of non-webm encoders setting the encoder flag with ```--extra_params```, so it is possible to set ```purewebm_params``` to generate matroska containerized H.264 encoded files like the following:
+```console
+purewebm_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
+```
+With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded file will be put in an mkv. For more information refer PureWebM's repository.
+
+The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to burned on simple webms.
+
 ## Installation
 The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
 ```bash

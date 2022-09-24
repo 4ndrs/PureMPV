@@ -8,6 +8,7 @@ mp.add_key_binding("ctrl+c", "get-crop", get_crop);
 mp.add_key_binding("ctrl+p", "toggle-puremode", toggle_puremode);
 
 var options = {
+  copy_mode: "ffmpeg",
   pure_mode: true,
   pure_box: false,
   pure_webm: false,
@@ -32,6 +33,8 @@ if (options.pure_box) {
 if (options.pure_webm) {
   mp.add_key_binding("ctrl+o", "purewebm", encode_purewebm);
   mp.add_key_binding("ctrl+shift+o", "purewebm-params", encode_purewebm_params);
+  mp.add_key_binding("ctrl+v", "toggle-burn-subs", toggle_burn_subs);
+  var burn_subs = false;
 }
 
 var start_time = null;
@@ -55,6 +58,16 @@ function encode_purewebm() {
 function encode_purewebm_params() {
   // Runs PureWebM with the set instructions plus purewebm_params
   get_file_path(true, true);
+}
+
+function toggle_burn_subs() {
+  if (burn_subs) {
+    burn_subs = false;
+    mp.osd_message("Burn subtitles: no");
+  } else {
+    burn_subs = true;
+    mp.osd_message("Burn subtitles: yes");
+  }
 }
 
 function get_crop_purebox() {
@@ -136,6 +149,7 @@ function get_file_path(purewebm, purewebm_params) {
             // copy each url with -i prepended to input
             input.push('-i "' + urls[i].match(/http.*/)[0] + '"');
           } else {
+            input.push("-i");
             input.push(urls[i].match(/http.*/)[0]);
           }
         }
@@ -144,6 +158,7 @@ function get_file_path(purewebm, purewebm_params) {
       if (!purewebm) {
         input.push('-i "' + path + '"');
       } else {
+        input.push("-i");
         input.push(path);
       }
     }
@@ -158,6 +173,9 @@ function get_file_path(purewebm, purewebm_params) {
 
       if (crop_lavfi) {
         command = command.concat(crop_lavfi.trim().split(" "));
+      }
+      if (!purewebm_params && burn_subs) {
+        command = command.concat(["-subs"]);
       }
       if (timestamps) {
         command = command.concat(timestamps.trim().split(" "));
@@ -177,22 +195,42 @@ function get_file_path(purewebm, purewebm_params) {
       for (var i = 0; i < input.length; i++) {
         timestamps_inputs += " " + timestamps + input[i];
       }
-      copy_to_selection(
-        "ffmpeg" + timestamps_inputs + " " + crop_lavfi + options.ffmpeg_params
-      );
+      switch (options.copy_mode) {
+        case "ffmpeg":
+          copy_to_selection(
+            "ffmpeg" +
+              timestamps_inputs +
+              " " +
+              crop_lavfi +
+              options.ffmpeg_params
+          );
+          break;
+        case "purewebm":
+          copy_to_selection("purewebm" + timestamps_inputs + " " + crop_lavfi);
+          break;
+      }
     } else {
       var inputs = "";
       for (var i = 0; i < input.length; i++) {
         inputs += " " + input[i];
       }
-      copy_to_selection(
-        "ffmpeg" +
-          inputs +
-          " " +
-          timestamps +
-          crop_lavfi +
-          options.ffmpeg_params
-      );
+      switch (options.copy_mode) {
+        case "ffmpeg":
+          copy_to_selection(
+            "ffmpeg" +
+              inputs +
+              " " +
+              timestamps +
+              crop_lavfi +
+              options.ffmpeg_params
+          );
+          break;
+        case "purewebm":
+          copy_to_selection(
+            "purewebm" + inputs + " " + timestamps + crop_lavfi
+          );
+          break;
+      }
     }
   }
 }
