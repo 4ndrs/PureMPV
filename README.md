@@ -66,7 +66,7 @@ purewebm_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
 ```
 With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded streams will be put in an mkv. For more information refer PureWebM's repository.
 
-The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to burned on simple webms.
+The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to be burned on simple webms.
 
 ## Installation
 The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
