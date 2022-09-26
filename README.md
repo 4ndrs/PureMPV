@@ -17,18 +17,18 @@ The script can copy the following, by default (Pure Mode):
 - File path - <kbd>ctrl</kbd> + <kbd>w</kbd>
 
 To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or cancelled), the copied string will be formatted like the following:
-```bash
+```console
 ffmpeg -ss hh:mm:ss -to hh:mm:ss -i "/path/to/file" -vf crop=w:h:x:y
 ```
 When omitting key combinations, the resulting string will have the values omitted as well, for example triggering just start time, and then the file path will yield the following string:
-```bash
+```console
 ffmpeg -ss hh:mm:ss -i "/path/to/file"
 ```
 
 To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **Pure Mode** activated.
 
 The default mode, and the selection to copy to can be changed creating a configuration file under ```$HOME/.config/mpv/script-opts/``` with the name **PureMPV.conf**, and inserting the following:
-```bash
+```console
 pure_mode=no
 selection=clipboard
 ```
@@ -47,30 +47,30 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 
 ## PureBox
 An alternative to drawing the cropbox with ffmpeg filters is using [PureBox](https://github.com/4ndrs/PureBox), which can be activated setting ```pure_box=yes``` in the configuration file. PureBox uses Xlib to draw the box on the window, which is much faster, less resource intensive, and works with hwdec=yes. It can be installed using pip:
-```bash
-pip install purebox
+```console
+$ pip install purebox
 ```
 or
-```bash
-git clone https://github.com/4ndrs/PureBox.git
-cd PureBox
-pip install .
+```console
+$ git clone https://github.com/4ndrs/PureBox.git
+$ cd PureBox
+$ pip install .
 ```
 
 ## PureWebM
 Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
 
-With PureWebM support enabled, the key bindings <kbd>ctrl</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>v</kbd> will be set, making it possible to make simple webms with the set parameters (<kbd>ctrl</kbd>+<kbd>o</kbd>), and with the set ```purewebm_params``` in the configuration file (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>). PureWebM allows for the use of non-webm encoders setting the encoder flag with ```--extra_params```, so it is possible to set ```purewebm_params``` to generate matroska containerized H.264 encoded files like the following:
+With PureWebM support enabled, the key bindings <kbd>ctrl</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>, and <kbd>ctrl</kbd>+<kbd>v</kbd> will be set, making it possible to make simple webms with the set parameters (<kbd>ctrl</kbd>+<kbd>o</kbd>), and with the set ```purewebm_params``` in the configuration file (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>). PureWebM allows for the use of non-webm encoders setting the encoder flag with ```--extra_params```, so it is possible to set ```purewebm_params``` to generate matroska containerized H.264 encoded files like the following:
 ```console
 purewebm_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
 ```
-With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded file will be put in an mkv. For more information refer PureWebM's repository.
+With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded streams will be put in an mkv. For more information refer PureWebM's repository.
 
-The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to burned on simple webms.
+The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to be burned on simple webms.
 
 ## Installation
 The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
-```bash
- $ cd ~/.config/mpv/scripts
- $ git clone https://github.com/4ndrs/PureMPV.git
+```console
+$ cd ~/.config/mpv/scripts
+$ git clone https://github.com/4ndrs/PureMPV.git
 ```
