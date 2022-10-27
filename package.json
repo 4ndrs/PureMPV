@@ -1,0 +1,26 @@
+{
+  "name": "purempv",
+  "version": "0.1.0",
+  "description": "Script to get the timestamps, cropping coordinates, and file path of the playing video, all within mpv",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src --out-dir lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4ndrs/PureMPV.git"
+  },
+  "author": "4ndrs <andres.degozaru@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/4ndrs/PureMPV/issues"
+  },
+  "homepage": "https://github.com/4ndrs/PureMPV#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.19.6",
+    "@babel/preset-env": "^7.19.4",
+    "eslint": "^8.26.0"
+  }
+}
