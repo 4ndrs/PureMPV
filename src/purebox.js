@@ -5,8 +5,11 @@
 
 export default class PureBox {
   constructor() {
-    this.video.width = mp.get_property("width");
-    this.video.height = mp.get_property("height");
+    this.video = {
+      width: mp.get_property("width"),
+      height: mp.get_property("height"),
+    };
+
     this.pid = mp.utils.getpid();
   }
 
