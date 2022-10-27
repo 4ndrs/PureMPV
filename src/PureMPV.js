@@ -21,14 +21,16 @@ class PureMPV {
   }
 
   setKeybindings() {
-    mp.add_key_binding("ctrl+w", "get-file-path", this.getFilePath);
+    mp.add_key_binding("ctrl+w", "get-file-path", () => this.getFilePath());
     mp.add_key_binding("ctrl+shift+w", "generate-preview", () =>
       this.encode("preview")
     );
-    mp.add_key_binding("ctrl+e", "get-timestamp", this.getTimestamp);
-    mp.add_key_binding("ctrl+shift+e", "set-endtime", this.setEndtime);
-    mp.add_key_binding("ctrl+c", "get-crop", this.getCrop);
-    mp.add_key_binding("ctrl+p", "toggle-puremode", this.togglePureMode);
+    mp.add_key_binding("ctrl+e", "get-timestamp", () => this.getTimestamp());
+    mp.add_key_binding("ctrl+shift+e", "set-endtime", () => this.setEndtime());
+    mp.add_key_binding("ctrl+c", "get-crop", () => this.getCrop());
+    mp.add_key_binding("ctrl+p", "toggle-puremode", () =>
+      this.togglePureMode()
+    );
   }
 
   loadConfig() {
