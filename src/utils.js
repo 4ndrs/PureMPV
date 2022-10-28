@@ -1,9 +1,9 @@
 // Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
-import { DEBUG } from "./env";
-
 /* global mp */
+
+import { DEBUG } from "./env";
 
 export function copyToSelection(text, selection) {
   if (selection != "primary" && selection != "clipboard") {
@@ -23,10 +23,6 @@ export function copyToSelection(text, selection) {
   );
 
   printMessage(`Copied to ${selection}: ${text}`);
-}
-
-export function getFilePath() {
-  return mp.get_property("path");
 }
 
 export function getTimePosition() {
