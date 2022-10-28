@@ -77,7 +77,22 @@ class PureMPV {
 
   // TODO
   encode() {}
-  getFilePath() {}
+
+  getFilePath() {
+    const path = mp.get_property("path");
+
+    if (!this.options.pure_mode) {
+      copyToSelection(path, this.options.selection);
+      return;
+    }
+
+    const timestamps = this.serializeTimestamps();
+    const inputs = this.serializeInputs(path, timestamps);
+    const cropLavfi = this.serializeCropBox();
+    const command = this.generateCommand(inputs, cropLavfi);
+
+    copyToSelection(command);
+  }
 
   getTimestamp(getEndTime) {
     const timestamp = getTimePosition();
