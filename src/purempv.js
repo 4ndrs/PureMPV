@@ -56,12 +56,6 @@ class PureMPV {
       mp.remove_key_binding("set-endtime");
     }
 
-    if (this.options.pure_box) {
-      // Enable cropping with PureBox
-      mp.remove_key_binding("get-crop");
-      mp.add_key_binding("ctrl+c", "get-crop", () => this.getCrop("purebox"));
-    }
-
     if (this.options.pure_webm) {
       // Enable encoding with PureWebM
       mp.add_key_binding("ctrl+o", "purewebm", () => this.encode("purewebm"));
@@ -123,18 +117,17 @@ class PureMPV {
     }
   }
 
-  getCrop(mode) {
-    switch (mode) {
-      case "purebox":
-        [this.cropBox.x, this.cropBox.y, this.cropBox.w, this.cropBox.h] =
-          this.pureBox.getCrop();
+  getCrop() {
+    if (this.options.pure_box) {
+      [this.cropBox.x, this.cropBox.y, this.cropBox.w, this.cropBox.h] =
+        this.pureBox.getCrop();
 
-        // Copy to selection if PureMode is off
-        !this.options.pure_mode &&
-          copyToSelection(this.cropBox.toString(), this.options.selection);
-        break;
-      default:
-        return;
+      // Copy to selection if PureMode is off
+      !this.options.pure_mode &&
+        copyToSelection(this.cropBox.toString(), this.options.selection);
+    } else {
+      // TODO
+      return;
     }
   }
 
