@@ -11,7 +11,7 @@ export function copyToSelection(text, selection) {
     `(echo -n '${text}'| xclip -selection ${selection})`
   );
 
-  printMessage(`Copied: ${text}`);
+  printMessage(`Copied to ${selection}: ${text}`);
 }
 
 export function getFilePath() {
