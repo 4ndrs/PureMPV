@@ -67,7 +67,7 @@ class PureMPV {
       );
       mp.add_key_binding("ctrl+v", "toggle-burn-subs", () => {
         this.burnSubs = !this.burnSubs;
-        mp.osd_message(`Burn subtitles: ${this.burnSubs ? "yes" : "no"}`);
+        printMessage(`Burn subtitles: ${this.burnSubs ? "yes" : "no"}`);
       });
     }
   }
