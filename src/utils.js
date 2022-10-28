@@ -6,6 +6,15 @@ import { DEBUG } from "./env";
 /* global mp */
 
 export function copyToSelection(text, selection) {
+  if (selection != "primary" && selection != "clipboard") {
+    print(
+      `ERROR: ${selection} is not a valid selection. ` +
+        `Possible values are: primary, clipboard`
+    );
+    print("INFO: setting selection to 'primary'");
+    selection = "primary";
+  }
+
   mp.commandv(
     "run",
     "bash",
