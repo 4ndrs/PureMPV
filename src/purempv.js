@@ -3,8 +3,9 @@
 
 /* global mp */
 
-import { printMessage, copyToSelection } from "./utils";
+import { printMessage, copyToSelection, getTimePosition } from "./utils";
 import PureBox from "./purebox";
+import { DEBUG } from "./env";
 
 class PureMPV {
   constructor() {
@@ -26,7 +27,9 @@ class PureMPV {
       this.encode("preview")
     );
     mp.add_key_binding("ctrl+e", "get-timestamp", () => this.getTimestamp());
-    mp.add_key_binding("ctrl+shift+e", "set-endtime", () => this.setEndtime());
+    mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
+      this.getTimestamp("end-time")
+    );
     mp.add_key_binding("ctrl+c", "get-crop", () => this.getCrop());
     mp.add_key_binding("ctrl+p", "toggle-puremode", () =>
       this.togglePureMode()
@@ -74,9 +77,36 @@ class PureMPV {
 
   // TODO
   encode() {}
-  setEndTime() {}
   getFilePath() {}
-  getTimestamp() {}
+
+  getTimestamp(getEndTime) {
+    const timestamp = getTimePosition();
+
+    if (DEBUG) {
+      print(`DEBUG: TIMESTAMP: ${timestamp}`);
+      print(`DEBUG: STARTTIME: ${this.startTime} ENDTIME: ${this.endTime}`);
+    }
+
+    if (getEndTime && this.options.pure_mode) {
+      this.endTime = timestamp;
+      printMessage(`Set end time: ${this.endTime}`);
+      return;
+    }
+
+    if (!this.options.pure_mode) {
+      // Copy to selection if PureMode is off
+      copyToSelection(timestamp, this.options.selection);
+    } else if (!this.startTime) {
+      this.startTime = timestamp;
+      printMessage(`Set start time: ${this.startTime}`);
+    } else if (!this.endTime) {
+      this.endTime = timestamp;
+      printMessage(`Set end time: ${this.endTime}`);
+    } else {
+      [this.startTime, this.endTime] = [null, null];
+      printMessage("Times reset");
+    }
+  }
 
   getCrop(mode) {
     switch (mode) {
@@ -101,7 +131,9 @@ class PureMPV {
       mp.add_key_binding("ctrl+shift+w", "generate-preview", () =>
         this.encode("preview")
       );
-      mp.add_key_binding("ctrl+shift+e", "set-endtime", this.setEndTime);
+      mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
+        this.getTimestamp("end-time")
+      );
     } else {
       status += "OFF";
       mp.remove_key_binding("generate-preview");
