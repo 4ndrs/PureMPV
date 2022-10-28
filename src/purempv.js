@@ -4,6 +4,7 @@
 /* global mp */
 
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
+import { getStreamUrls } from "./streams";
 import PureBox from "./purebox";
 import { DEBUG } from "./env";
 
@@ -85,7 +86,72 @@ class PureMPV {
     const cropLavfi = this.serializeCropBox();
     const command = this.generateCommand(inputs, cropLavfi);
 
-    copyToSelection(command);
+    copyToSelection(command, this.options.selection);
+  }
+
+  serializeTimestamps() {
+    if (this.startTime && this.endTime) {
+      return `-ss ${this.startTime} -to ${this.endTime}`;
+    }
+    if (this.startTime) {
+      return `-ss ${this.startTime}`;
+    }
+    if (this.endTime) {
+      return `-to ${this.endTime}`;
+    }
+    return "";
+  }
+
+  serializeInputs(path, timestamps) {
+    const isStream = path.search("^http[s]?://") !== -1;
+
+    if (!timestamps && !isStream) {
+      return this.options.pure_webm ? ["-i", `"${path}"`] : [`-i "${path}"`];
+    }
+
+    if (!isStream) {
+      return this.options.pure_webm
+        ? [...timestamps.split(" "), "-i", `"${path}"`]
+        : this.options.input_seeking
+        ? [`${timestamps} -i "${path}"`]
+        : [`-i "${path}" ${timestamps}`];
+    }
+
+    const urls = getStreamUrls(path);
+    const inputs = [];
+
+    if (!urls) {
+      print("ERROR: Unable to parse the stream urls. Source is unknown");
+      return;
+    }
+
+    for (const url of urls) {
+      if (this.options.pure_webm) {
+        inputs.push(...[...timestamps.split(" "), "-i", `"${url}"`]);
+      } else {
+        this.options.input_seeking
+          ? inputs.push(...[`${timestamps} -i "${url}"`])
+          : inputs.push(...[`-i "${url}" ${timestamps}`]);
+      }
+    }
+
+    return inputs;
+  }
+
+  serializeCropBox() {
+    if (this.cropBox.w !== null) {
+      return `-lavfi crop=${this.cropBox.toString()}`;
+    }
+    return "";
+  }
+
+  generateCommand(inputs, cropLavfi) {
+    DEBUG && print(`DEBUG: INPUTS: ${inputs} CROPLAVFI: ${cropLavfi}`);
+
+    const program =
+      this.options.copy_mode === "purewebm" ? "purewebm" : "ffmpeg";
+
+    return `${program} ${inputs.join(" ")} ${cropLavfi}`;
   }
 
   getTimestamp(getEndTime) {
