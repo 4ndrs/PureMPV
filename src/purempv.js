@@ -18,7 +18,10 @@ class PureMPV {
     this.endTime = null;
     this.startTime = null;
 
-    this.cropBox = new CropBox(this.options.pure_box);
+    this.cropBox = new CropBox(
+      this.options.pure_box,
+      this.options.cropbox_animation
+    );
   }
 
   setKeybindings() {
@@ -71,10 +74,9 @@ class PureMPV {
 
   crop() {
     this.cropBox.getCrop();
-
-    // Copy to selection if PureMode is off
-    !this.options.pure_mode &&
+    if (!this.options.pure_mode && !this.cropBox.isCropping) {
       copyToSelection(this.cropBox.toString(), this.options.selection);
+    }
   }
 
   // TODO
