@@ -158,7 +158,7 @@ class PureMPV {
       params = this.options.ffmpeg_params;
     }
 
-    return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`;
+    return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
   }
 
   getTimestamp(getEndTime) {
