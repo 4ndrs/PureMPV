@@ -6,18 +6,24 @@
 import { DEBUG } from "./env";
 
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
-import { getStreamUrls } from "./streams";
 import CropBox from "./cropbox";
+
+import {
+  Encoder,
+  serializeTimestamps,
+  serializeInputs,
+  generateCommand,
+} from "./encoder";
 
 class PureMPV {
   constructor() {
     this.setKeybindings();
     this.loadConfig();
 
-    this.burnSubs = false;
     this.endTime = null;
     this.startTime = null;
 
+    this.encoder = new Encoder();
     this.cropBox = new CropBox(
       this.options.pure_box,
       this.options.cropbox_animation
@@ -45,8 +51,8 @@ class PureMPV {
       pure_mode: true,
       pure_box: false,
       pure_webm: false,
-      purewebm_params: "",
       ffmpeg_params: "",
+      purewebm_extra_params: "",
       input_seeking: true,
       selection: "primary", // primary or clipboard, see man xclip
       cropbox_animation: false,
@@ -62,12 +68,12 @@ class PureMPV {
     if (this.options.pure_webm) {
       // Enable encoding with PureWebM
       mp.add_key_binding("ctrl+o", "purewebm", () => this.encode("purewebm"));
-      mp.add_key_binding("ctrl+shift+o", "purewebm-params", () =>
+      mp.add_key_binding("ctrl+shift+o", "purewebm-extra-params", () =>
         this.encode("purewebm-extra-params")
       );
       mp.add_key_binding("ctrl+v", "toggle-burn-subs", () => {
-        this.burnSubs = !this.burnSubs;
-        printMessage(`Burn subtitles: ${this.burnSubs ? "yes" : "no"}`);
+        this.encoder.burnSubs = !this.encoder.burnSubs;
+        printMessage(`Burn subtitles: ${this.encoder.burnSubs ? "yes" : "no"}`);
       });
     }
   }
@@ -79,8 +85,20 @@ class PureMPV {
     }
   }
 
-  // TODO
-  encode() {}
+  encode(mode) {
+    const args = [this.startTime, this.endTime, this.cropBox];
+    switch (mode) {
+      case "preview":
+        this.encoder.preview(...args);
+        return;
+      case "purewebm":
+        this.encoder.encode(...args);
+        return;
+      case "purewebm-extra-params":
+        this.encoder.encode(...args, this.options.purewebm_extra_params);
+        return;
+    }
+  }
 
   getFilePath() {
     const path = mp.get_property("path");
@@ -90,84 +108,21 @@ class PureMPV {
       return;
     }
 
-    const timestamps = this.serializeTimestamps();
-    const inputs = this.serializeInputs(path, timestamps);
-    const cropLavfi = this.serializeCropBox();
-    const command = this.generateCommand(inputs, cropLavfi);
+    const timestamps = serializeTimestamps(this.startTime, this.endTime);
+    const inputs = serializeInputs(
+      path,
+      timestamps,
+      this.options.pure_mode,
+      this.options.input_seeking
+    );
+    const command = generateCommand(
+      inputs,
+      this.cropBox,
+      this.options.copy_mode,
+      this.options.ffmpeg_params
+    );
 
     copyToSelection(command, this.options.selection);
-  }
-
-  serializeTimestamps() {
-    if (this.startTime && this.endTime) {
-      return `-ss ${this.startTime} -to ${this.endTime}`;
-    }
-    if (this.startTime) {
-      return `-ss ${this.startTime}`;
-    }
-    if (this.endTime) {
-      return `-to ${this.endTime}`;
-    }
-    return "";
-  }
-
-  serializeInputs(path, timestamps) {
-    const isStream = path.search("^http[s]?://") !== -1;
-
-    if (!timestamps && !isStream) {
-      return this.options.pure_webm ? ["-i", `"${path}"`] : [`-i "${path}"`];
-    }
-
-    if (!isStream) {
-      return this.options.pure_webm
-        ? [...timestamps.split(" "), "-i", `"${path}"`]
-        : this.options.input_seeking
-        ? [`${timestamps} -i "${path}"`]
-        : [`-i "${path}" ${timestamps}`];
-    }
-
-    const urls = getStreamUrls(path);
-    const inputs = [];
-
-    if (!urls) {
-      print("ERROR: Unable to parse the stream urls. Source is unknown");
-      return;
-    }
-
-    for (const url of urls) {
-      if (this.options.pure_webm) {
-        inputs.push(...[...timestamps.split(" "), "-i", `"${url}"`]);
-      } else {
-        this.options.input_seeking
-          ? inputs.push(...[`${timestamps} -i "${url}"`])
-          : inputs.push(...[`-i "${url}" ${timestamps}`]);
-      }
-    }
-
-    return inputs;
-  }
-
-  serializeCropBox() {
-    if (this.cropBox.w !== null) {
-      return `-lavfi crop=${this.cropBox.toString()}`;
-    }
-    return "";
-  }
-
-  generateCommand(inputs, cropLavfi) {
-    DEBUG && print(`DEBUG: INPUTS: ${inputs} CROPLAVFI: ${cropLavfi}`);
-
-    let program = "";
-    let params = "";
-
-    if (this.options.copy_mode === "purewebm") {
-      program = "purewebm";
-    } else {
-      program = "ffmpeg";
-      params = this.options.ffmpeg_params;
-    }
-
-    return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
   }
 
   getTimestamp(getEndTime) {
