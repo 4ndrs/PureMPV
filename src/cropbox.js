@@ -38,45 +38,51 @@ export default class CropBox {
   }
 
   generateCrop() {
-    this.mouse.getProperties();
-
     if (!this.isCropping) {
-      printMessage("Cropping started");
       this.isCropping = true;
+      this.setInitialMousePosition();
 
       //this.animationEnabled &&
       // mp.observe_property("mouse-pos", "native", this.animateCropBox);
-
-      this.x = this.mouse.x;
-      this.y = this.mouse.y;
-      this.constX = this.mouse.x;
-      this.constY = this.mouse.y;
+      printMessage("Cropping started");
     } else {
-      if (this.mouse.x < this.constX) {
-        this.x = this.mouse.x;
-        this.mouse.x = this.constX;
-        this.x = Math.min(this.mouse.x, this.x);
-        this.w = this.mouse.x - this.x;
-      } else {
-        this.mouse.x = Math.max(this.mouse.x, this.x);
-        this.x = Math.min(this.mouse.x, this.x);
-        this.w = this.mouse.x - this.x;
-      }
-
-      if (this.mouse.y < this.constY) {
-        this.y = this.mouse.y;
-        this.mouse.y = this.constY;
-        this.y = Math.min(this.mouse.y, this.y);
-        this.h = this.mouse.y - this.y;
-      } else {
-        this.mouse.y = Math.max(this.mouse.y, this.y);
-        this.y = Math.min(this.mouse.y, this.y);
-        this.h = this.mouse.y - this.y;
-      }
-
+      this.calculateBox();
       this.drawBox();
       this.isCropping = false;
       printMessage("Cropping ended");
+    }
+  }
+
+  setInitialMousePosition() {
+    this.mouse.getProperties();
+    this.x = this.mouse.x;
+    this.y = this.mouse.y;
+    this.constX = this.mouse.x;
+    this.constY = this.mouse.y;
+  }
+
+  calculateBox() {
+    this.mouse.getProperties();
+    if (this.mouse.x < this.constX) {
+      this.x = this.mouse.x;
+      this.mouse.x = this.constX;
+      this.x = Math.min(this.mouse.x, this.x);
+      this.w = this.mouse.x - this.x;
+    } else {
+      this.mouse.x = Math.max(this.mouse.x, this.x);
+      this.x = Math.min(this.mouse.x, this.x);
+      this.w = this.mouse.x - this.x;
+    }
+
+    if (this.mouse.y < this.constY) {
+      this.y = this.mouse.y;
+      this.mouse.y = this.constY;
+      this.y = Math.min(this.mouse.y, this.y);
+      this.h = this.mouse.y - this.y;
+    } else {
+      this.mouse.y = Math.max(this.mouse.y, this.y);
+      this.y = Math.min(this.mouse.y, this.y);
+      this.h = this.mouse.y - this.y;
     }
   }
 
