@@ -3,10 +3,12 @@
 
 /* global mp */
 
+import { DEBUG } from "./env";
+
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
 import { getStreamUrls } from "./streams";
+import CropBox from "./cropbox";
 import PureBox from "./purebox";
-import { DEBUG } from "./env";
 
 class PureMPV {
   constructor() {
@@ -239,22 +241,6 @@ class PureMPV {
     }
 
     printMessage("Crop reset");
-  }
-}
-
-class CropBox {
-  constructor() {
-    this.isCropping = false;
-    this.constX = null;
-    this.constY = null;
-    this.w = null;
-    this.h = null;
-    this.x = null;
-    this.y = null;
-  }
-  toString() {
-    // Return the cropBox as a string for ffmpeg's crop filter
-    return `${this.w}:${this.h}:${this.x}:${this.y}`;
   }
 }
 
