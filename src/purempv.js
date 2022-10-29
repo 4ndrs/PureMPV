@@ -8,7 +8,6 @@ import { DEBUG } from "./env";
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
 import { getStreamUrls } from "./streams";
 import CropBox from "./cropbox";
-import PureBox from "./purebox";
 
 class PureMPV {
   constructor() {
@@ -19,9 +18,7 @@ class PureMPV {
     this.endTime = null;
     this.startTime = null;
 
-    this.cropBox = new CropBox();
-
-    this.options.pure_box && (this.pureBox = new PureBox());
+    this.cropBox = new CropBox(this.options.pure_box);
   }
 
   setKeybindings() {
@@ -33,7 +30,7 @@ class PureMPV {
     mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
       this.getTimestamp("end-time")
     );
-    mp.add_key_binding("ctrl+c", "get-crop", () => this.getCrop());
+    mp.add_key_binding("ctrl+c", "get-crop", () => this.crop());
     mp.add_key_binding("ctrl+p", "toggle-puremode", () =>
       this.togglePureMode()
     );
@@ -70,6 +67,14 @@ class PureMPV {
         printMessage(`Burn subtitles: ${this.burnSubs ? "yes" : "no"}`);
       });
     }
+  }
+
+  crop() {
+    this.cropBox.getCrop();
+
+    // Copy to selection if PureMode is off
+    !this.options.pure_mode &&
+      copyToSelection(this.cropBox.toString(), this.options.selection);
   }
 
   // TODO
@@ -189,26 +194,6 @@ class PureMPV {
     } else {
       [this.startTime, this.endTime] = [null, null];
       printMessage("Times reset");
-    }
-  }
-
-  getCrop() {
-    // Reset cropBox if coordinates are already set
-    if (this.cropBox.w !== null) {
-      this.cropBox.resetCrop(this.options.pure_box);
-      return;
-    }
-
-    if (this.options.pure_box) {
-      [this.cropBox.x, this.cropBox.y, this.cropBox.w, this.cropBox.h] =
-        this.pureBox.getCrop();
-
-      // Copy to selection if PureMode is off
-      !this.options.pure_mode &&
-        copyToSelection(this.cropBox.toString(), this.options.selection);
-    } else {
-      // TODO
-      return;
     }
   }
 
