@@ -193,6 +193,12 @@ class PureMPV {
   }
 
   getCrop() {
+    // Reset cropBox if coordinates are already set
+    if (this.cropBox.w !== null) {
+      this.cropBox.resetCrop(this.options.pure_box);
+      return;
+    }
+
     if (this.options.pure_box) {
       [this.cropBox.x, this.cropBox.y, this.cropBox.w, this.cropBox.h] =
         this.pureBox.getCrop();
