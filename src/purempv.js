@@ -224,24 +224,6 @@ class PureMPV {
     }
     printMessage(status);
   }
-
-  resetCrop() {
-    [
-      this.cropBox.constX,
-      this.cropBox.constY,
-      this.cropBox.w,
-      this.cropBox.h,
-      this.cropBox.x,
-      this.cropBox.y,
-    ] = Array(6).fill(null);
-
-    if (!this.options.pure_box) {
-      // Remove the box drawn with ffmpeg filters
-      mp.commandv("vf", "remove", "@box");
-    }
-
-    printMessage("Crop reset");
-  }
 }
 
 export const pure = new PureMPV();
