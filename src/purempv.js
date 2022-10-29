@@ -148,10 +148,17 @@ class PureMPV {
   generateCommand(inputs, cropLavfi) {
     DEBUG && print(`DEBUG: INPUTS: ${inputs} CROPLAVFI: ${cropLavfi}`);
 
-    const program =
-      this.options.copy_mode === "purewebm" ? "purewebm" : "ffmpeg";
+    let program = "";
+    let params = "";
 
-    return `${program} ${inputs.join(" ")} ${cropLavfi}`;
+    if (this.options.copy_mode === "purewebm") {
+      program = "purewebm";
+    } else {
+      program = "ffmpeg";
+      params = this.options.ffmpeg_params;
+    }
+
+    return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`;
   }
 
   getTimestamp(getEndTime) {
