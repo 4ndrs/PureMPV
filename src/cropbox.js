@@ -3,7 +3,7 @@
 
 /* global mp */
 
-import { printMessage } from "./utils.js";
+import { printMessage } from "./utils";
 
 export default class CropBox {
   constructor() {
