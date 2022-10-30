@@ -1,6 +1,6 @@
 # PureMPV
 
-Script to get the timestamps, cropping coordinates, and file path of the playing video, all within mpv.
+Script to get the timestamps, cropping coordinates, and file path of the playing video, for ffmpeg, all from within mpv. Additional encoding capabilities are also possible through an external utility, see [PureWebM](#purewebm) below.
 
 ## Usage
 
@@ -60,17 +60,63 @@ $ pip install .
 ## PureWebM
 Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
 
-With PureWebM support enabled, the key bindings <kbd>ctrl</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>, and <kbd>ctrl</kbd>+<kbd>v</kbd> will be set, making it possible to make simple webms with the set parameters (<kbd>ctrl</kbd>+<kbd>o</kbd>), and with the set ```purewebm_params``` in the configuration file (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>). PureWebM allows for the use of non-webm encoders setting the encoder flag with ```--extra_params```, so it is possible to set ```purewebm_params``` to generate matroska containerized H.264 encoded files like the following:
+With PureWebM support enabled, the key bindings <kbd>ctrl</kbd>+<kbd>o</kbd>, <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>, and <kbd>ctrl</kbd>+<kbd>v</kbd> will be set, making it possible to make simple webms with the set parameters (<kbd>ctrl</kbd>+<kbd>o</kbd>), and with the set ```purewebm_extra_params``` in the configuration file (<kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>). PureWebM allows for the use of non-webm encoders setting the encoder flag with ```--extra_params```, so it is possible to set ```purewebm_extra_params``` to generate matroska containerized H.264 encoded files like the following:
 ```console
-purewebm_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
+purewebm_extra_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
 ```
-With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded streams will be put in an mkv. For more information refer PureWebM's repository.
+With the above set, <kbd>ctrl</kbd>+<kbd>o</kbd> will encode simple 3MiB size restricted webms, while <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd> will generate H.264 encoded matroska files with no size limit. If the encoder is not libvpx-vp9 or libvpx, the encoded streams will be put in an mkv. For more information refer PureWebM's repository.
 
 The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to be burned on simple webms.
 
+## Keybindings summary
+|Keybinding|Name|Action|
+|----------|----|------|
+|<kbd>ctrl</kbd> + <kbd>p</kbd>| ```toggle-puremode```| Activate/deactivate PureMode.
+|<kbd>ctrl</kbd> + <kbd>w</kbd>| ```get-file-path```| Copy the file path with no formatting. <br />**PureMode**: copy the currently set parameters formatted with ffmpeg.
+|<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>w</kbd>| ```generate-preview```| **PureMode**: Generate a preview of the currently set parameters.
+|<kbd>ctrl</kbd> + <kbd>e</kbd>| ```get-timestamp```| Copy the current time position with the format HH:MM:SS. <br />**PureMode**: Set the start time parameter if it is not set to the current time position, otherwise set the end time.
+|<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>e</kbd>| ```set-endtime```| **PureMode**: Set the end time parameter regardless of whether start time is set or not.
+|<kbd>ctrl</kbd> + <kbd>c</kbd>| ```get-crop```| Trigger cropping mode, and copy the cropped coordinates in the format W:H:X:Y.  <br />**PureMode**: Trigger cropping mode, and set the cropbox parameter.
+|<kbd>ctrl</kbd> + <kbd>o</kbd>| ```purewebm```| **PureMode**: Runs PureWebM with the currently set parameters.
+|<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>o</kbd>| ```purewebm-extra-params```| **PureMode**: Runs PureWebM with the currently set parameters and the ```purewebm_extra_params``` in the configuration file appended.
+|<kbd>ctrl</kbd> + <kbd>v</kbd>| ```toggle-burn-subs```| Activate/deactivate the burning of subtitles with PureWebM.
+
+Keybindings can be changed using the names in this table and modifying your input.conf in```$HOME/.config/mpv/input.conf```. As an example, the following changes the keybinding <kbd>ctrl</kbd> + <kbd>c</kbd> for getting the cropping coordinates to <kbd>c</kbd>:
+
+```bash
+# Change PureMPV's keybinding ctrl-c to c
+c script-binding get-crop
+```
+
+
 ## Installation
-The script currently only supports Linux. To install, change directory to your mpv config folder, and git clone this repository. An appropriate folder will be created:
+The script currently only supports Linux. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
 ```console
 $ cd ~/.config/mpv/scripts
 $ git clone https://github.com/4ndrs/PureMPV.git
+```
+
+Or if just the script is preferred without downloading the whole source code, downloading the ```main.js``` file and putting it in your mpv scripts folder is enough.
+
+## Building
+
+For building, having npm installed is necessary. This project uses Babel for transpiling and Rollup for bundling. To generate the ```main.js``` file with the latest changes, proceed with the following:
+
+```console
+$ npm ci
+
+added 284 packages, and audited 285 packages in 944ms
+
+35 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+$ npm run build
+
+> purempv@0.1.0 build
+> rollup -c
+
+src/purempv.js → main.js...
+created main.js in 623ms
 ```
