@@ -107,7 +107,7 @@ class PureMPV {
       this.startTime,
       this.endTime,
       null,
-      this.options.pure_webm,
+      false,
       this.options.input_seeking
     );
 

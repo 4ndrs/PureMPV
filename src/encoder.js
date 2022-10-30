@@ -29,11 +29,33 @@ export class Encoder {
       true
     );
 
-    const previewCommand = `ffmpeg -hide_banner ${inputs.join(
+    const command = `ffmpeg -hide_banner ${inputs.join(
       " "
     )} ${cropLavfi} ${params}`;
 
-    mp.commandv("run", "bash", "-c", `(${previewCommand})`);
+    mp.commandv("run", "bash", "-c", `(${command})`);
+  }
+
+  encode(startTime, endTime, cropBox, extraParams) {
+    const path = mp.get_property("path");
+    const { inputs, cropLavfi } = serialize(
+      path,
+      startTime,
+      endTime,
+      cropBox,
+      true,
+      true
+    );
+
+    let command = ["purewebm", ...inputs];
+    cropLavfi && command.push(...[...cropLavfi.split(" ")]);
+    extraParams && command.push(...["--extra_params", extraParams]);
+
+    mp.command_native({
+      name: "subprocess",
+      args: command,
+      detach: true,
+    });
   }
 }
 
@@ -74,16 +96,21 @@ function serializeTimestamps(startTime, endTime) {
   return "";
 }
 
-function serializeInputs(path, timestamps, pureWebmMode, inputSeeking) {
+function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
+  // Note: in subprocess mode this function returns an array of inputs adapted
+  // for running as subprocess's args, if it is off, each item will be pushed as
+  // a single string with quoted input paths. The following is an example of a single item
+  // with inputSeeking=true and subProcessMode=false:
+  // '-ss start time -to stop time -i "input/file/path"'
   const isStream = path.search("^http[s]?://") !== -1;
 
   if (!timestamps && !isStream) {
-    return pureWebmMode ? ["-i", `"${path}"`] : [`-i "${path}"`];
+    return subProcessMode ? ["-i", `${path}`] : [`-i "${path}"`];
   }
 
   if (!isStream) {
-    return pureWebmMode
-      ? [...timestamps.split(" "), "-i", `"${path}"`]
+    return subProcessMode
+      ? [...timestamps.split(" "), "-i", `${path}`]
       : inputSeeking
       ? [`${timestamps} -i "${path}"`]
       : [`-i "${path}" ${timestamps}`];
@@ -98,8 +125,8 @@ function serializeInputs(path, timestamps, pureWebmMode, inputSeeking) {
   }
 
   for (const url of urls) {
-    if (pureWebmMode) {
-      inputs.push(...[...timestamps.split(" "), "-i", `"${url}"`]);
+    if (subProcessMode) {
+      inputs.push(...[...timestamps.split(" "), "-i", `${url}`]);
     } else {
       inputSeeking
         ? inputs.push(...[`${timestamps} -i "${url}"`])
