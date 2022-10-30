@@ -42,15 +42,24 @@ export default class CropBox {
       this.isCropping = true;
       this.setInitialMousePosition();
 
-      //this.animationEnabled &&
-      // mp.observe_property("mouse-pos", "native", this.animateCropBox);
+      this.animationEnabled &&
+        mp.observe_property("mouse-pos", "native", animateBox);
+
       printMessage("Cropping started");
     } else {
       this.calculateBox();
       this.drawBox();
       this.isCropping = false;
+
+      this.animationEnabled && mp.unobserve_property(animateBox);
+
       printMessage("Cropping ended");
     }
+  }
+
+  animateCropBox() {
+    this.calculateBox();
+    this.drawBox();
   }
 
   setInitialMousePosition() {
@@ -59,6 +68,17 @@ export default class CropBox {
     this.y = this.mouse.y;
     this.constX = this.mouse.x;
     this.constY = this.mouse.y;
+
+    // ugly code
+    this.animationEnabled &&
+      ([box.w, box.h, box.x, box.y, box.constX, box.constY] = [
+        this.w,
+        this.h,
+        this.x,
+        this.y,
+        this.constX,
+        this.constY,
+      ]);
   }
 
   calculateBox() {
@@ -113,5 +133,49 @@ export default class CropBox {
       mp.commandv("vf", "remove", "@box");
     }
     printMessage("Crop reset");
+  }
+}
+
+// Extremely ugly code down here
+// mp.observe_property won't work if these aren't out here
+// Inside the class "this" is undefined somehow when it reaches
+// the this.calculateBox() part in animateCropBox
+var box = { w: null, h: null, x: null, y: null };
+function animateBox(name, mousePos) {
+  calculateBox(mousePos);
+  drawBox();
+}
+
+function drawBox() {
+  const color = "deeppink";
+  mp.commandv(
+    "vf",
+    "add",
+    `@box:drawbox=w=${box.w}:h=${box.h}:x=${box.x}:y=${box.y}:color=${color}`
+  );
+}
+
+function calculateBox(mousePos) {
+  let { x, y } = mousePos;
+  if (x < box.constX) {
+    box.x = x;
+    x = box.constX;
+    box.x = Math.min(x, box.x);
+    box.w = x - box.x;
+  } else {
+    x = Math.max(x, box.x);
+    box.x = Math.min(x, box.x);
+    box.w = x - box.x;
+  }
+
+  if (y < box.constY) {
+    box.y = y;
+    y = box.constY;
+    box.y = Math.min(y, box.y);
+    box.h = y - box.y;
+  } else {
+    y = Math.max(y, box.y);
+    box.y = Math.min(y, box.y);
+    box.h = y - box.y;
   }
 }
