@@ -29,7 +29,11 @@ export class Encoder {
       true
     );
 
-    const command = `ffmpeg -hide_banner ${inputs.join(
+    const mappings = inputs.map(
+      (input, index) => `-map ${index}:v? -map ${index}:a?`
+    );
+
+    const command = `ffmpeg -hide_banner ${inputs.join(" ")} ${mappings.join(
       " "
     )} ${cropLavfi} ${params}`;
 
