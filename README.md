@@ -77,8 +77,8 @@ The keybinding <kbd>ctrl</kbd>+<kbd>v</kbd> allows for subtitles to be burned on
 |<kbd>ctrl</kbd> + <kbd>e</kbd>| ```get-timestamp```| Copy the current time position with the format HH:MM:SS. <br />**PureMode**: Set the start time parameter if it is not set to the current time position, otherwise set the end time.
 |<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>e</kbd>| ```set-endtime```| **PureMode**: Set the end time parameter regardless of whether start time is set or not.
 |<kbd>ctrl</kbd> + <kbd>c</kbd>| ```get-crop```| Trigger cropping mode, and copy the cropped coordinates in the format W:H:X:Y.  <br />**PureMode**: Trigger cropping mode, and set the cropbox parameter.
-|<kbd>ctrl</kbd> + <kbd>o</kbd>| ```purewebm```| **PureMode**: Runs PureWebM with the currently set parameters.
-|<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>o</kbd>| ```purewebm-extra-params```| **PureMode**: Runs PureWebM with the currently set parameters and the ```purewebm_extra_params``` in the configuration file appended.
+|<kbd>ctrl</kbd> + <kbd>o</kbd>| ```purewebm```| **PureMode**: Run PureWebM with the currently set parameters.
+|<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>o</kbd>| ```purewebm-extra-params```| **PureMode**: Run PureWebM with the currently set parameters and the ```purewebm_extra_params``` in the configuration file appended.
 |<kbd>ctrl</kbd> + <kbd>v</kbd>| ```toggle-burn-subs```| Activate/deactivate the burning of subtitles with PureWebM.
 
 Keybindings can be changed using the names in this table and modifying your input.conf in```$HOME/.config/mpv/input.conf```. As an example, the following changes the keybinding <kbd>ctrl</kbd> + <kbd>c</kbd> for getting the cropping coordinates to <kbd>c</kbd>:
