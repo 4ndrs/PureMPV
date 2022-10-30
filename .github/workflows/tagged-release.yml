@@ -16,6 +16,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build main.js
+        run: npm run build
+
       - uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
