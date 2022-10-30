@@ -163,4 +163,4 @@ class PureMPV {
   }
 }
 
-export const pure = new PureMPV();
+new PureMPV();

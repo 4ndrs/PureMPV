@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src --out-dir lib"
+    "build": "rollup -c"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,9 @@
     "@babel/cli": "^7.19.3",
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
-    "eslint": "^8.26.0"
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "eslint": "^8.26.0",
+    "rollup": "^3.2.3"
   }
 }
