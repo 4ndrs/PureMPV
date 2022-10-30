@@ -6,14 +6,8 @@
 import { DEBUG } from "./env";
 
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
+import { Encoder, serialize, generateCommand } from "./encoder";
 import CropBox from "./cropbox";
-
-import {
-  Encoder,
-  serializeTimestamps,
-  serializeInputs,
-  generateCommand,
-} from "./encoder";
 
 class PureMPV {
   constructor() {
@@ -108,13 +102,15 @@ class PureMPV {
       return;
     }
 
-    const timestamps = serializeTimestamps(this.startTime, this.endTime);
-    const inputs = serializeInputs(
+    const { inputs } = serialize(
       path,
-      timestamps,
-      this.options.pure_mode,
+      this.startTime,
+      this.endTime,
+      null,
+      this.options.pure_webm,
       this.options.input_seeking
     );
+
     const command = generateCommand(
       inputs,
       this.cropBox,

@@ -13,15 +13,21 @@ export class Encoder {
 
   preview(startTime, endTime, cropBox) {
     printMessage("Processing preview");
+
+    const path = mp.get_property("path");
     const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
     const params =
       `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
       "-c:v libx264 -preset ultrafast - | mpv - --loop";
 
-    const path = mp.get_property("path");
-    const timestamps = serializeTimestamps(startTime, endTime);
-    const inputs = serializeInputs(path, timestamps, false, false);
-    const cropLavfi = serializeCropBox(cropBox);
+    const { inputs, cropLavfi } = serialize(
+      path,
+      startTime,
+      endTime,
+      cropBox,
+      false,
+      true
+    );
 
     const previewCommand = `ffmpeg -hide_banner ${inputs.join(
       " "
@@ -31,7 +37,31 @@ export class Encoder {
   }
 }
 
-export function serializeTimestamps(startTime, endTime) {
+export function serialize(
+  path,
+  startTime,
+  endTime,
+  cropBox,
+  pureWebmMode,
+  inputSeeking
+) {
+  const timestamps = serializeTimestamps(startTime, endTime);
+  const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
+  const cropLavfi = cropBox ? serializeCropBox(cropBox) : null;
+
+  return {
+    inputs: inputs,
+    cropLavfi: cropLavfi,
+  };
+}
+
+export function generateCommand(inputs, cropBox, program = "", params = "") {
+  program === "purewebm" ? (params = "") : (program = "ffmpeg");
+  const cropLavfi = serializeCropBox(cropBox);
+  return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
+}
+
+function serializeTimestamps(startTime, endTime) {
   if (startTime && endTime) {
     return `-ss ${startTime} -to ${endTime}`;
   }
@@ -44,7 +74,7 @@ export function serializeTimestamps(startTime, endTime) {
   return "";
 }
 
-export function serializeInputs(path, timestamps, pureWebmMode, inputSeeking) {
+function serializeInputs(path, timestamps, pureWebmMode, inputSeeking) {
   const isStream = path.search("^http[s]?://") !== -1;
 
   if (!timestamps && !isStream) {
@@ -80,15 +110,9 @@ export function serializeInputs(path, timestamps, pureWebmMode, inputSeeking) {
   return inputs;
 }
 
-export function serializeCropBox(cropBox) {
+function serializeCropBox(cropBox) {
   if (cropBox.w !== null) {
     return `-lavfi crop=${cropBox.toString()}`;
   }
   return "";
-}
-
-export function generateCommand(inputs, cropBox, program = "", params = "") {
-  program === "purewebm" ? (params = "") : (program = "ffmpeg");
-  const cropLavfi = serializeCropBox(cropBox);
-  return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 }
