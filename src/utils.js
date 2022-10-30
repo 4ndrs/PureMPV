@@ -13,12 +13,12 @@ export function copyToSelection(text, selection) {
     selection = "primary";
   }
 
-  mp.commandv(
-    "run",
-    "bash",
-    "-c",
-    `(echo -n '${text}'| xclip -selection ${selection})`
-  );
+  mp.command_native({
+    name: "subprocess",
+    args: ["xclip", "-selection", selection],
+    stdin_data: text,
+    detach: true,
+  });
 
   printMessage(`Copied to ${selection}: ${text}`);
 }
