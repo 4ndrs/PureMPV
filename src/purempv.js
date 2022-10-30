@@ -3,8 +3,6 @@
 
 /* global mp */
 
-import { DEBUG } from "./env";
-
 import { printMessage, copyToSelection, getTimePosition } from "./utils";
 import { Encoder, serialize, generateCommand } from "./encoder";
 import CropBox from "./cropbox";
@@ -123,11 +121,6 @@ class PureMPV {
 
   getTimestamp(getEndTime) {
     const timestamp = getTimePosition();
-
-    if (DEBUG) {
-      print(`DEBUG: TIMESTAMP: ${timestamp}`);
-      print(`DEBUG: STARTTIME: ${this.startTime} ENDTIME: ${this.endTime}`);
-    }
 
     if (getEndTime && this.options.pure_mode) {
       this.endTime = timestamp;

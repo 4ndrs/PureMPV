@@ -3,8 +3,6 @@
 
 /* global mp */
 
-import { DEBUG } from "./env";
-
 export function copyToSelection(text, selection) {
   if (selection != "primary" && selection != "clipboard") {
     print(
@@ -28,7 +26,6 @@ export function copyToSelection(text, selection) {
 export function getTimePosition() {
   // Returns the current timestamp in the format HH:MM:SS
   const timePos = mp.get_property("time-pos");
-  DEBUG && print(`DEBUG: TIME-POS: ${timePos}`);
   return new Date(timePos * 1000).toISOString().substring(11, 23);
 }
 
