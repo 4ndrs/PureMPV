@@ -18,9 +18,11 @@ export default class CropBox {
 
     this.animationEnabled = animationEnabled;
 
-    pureBoxEnabled
-      ? (this.pureBox = new PureBox())
-      : (this.mouse = new MouseProperties());
+    if (pureBoxEnabled) {
+      this.pureBox = new PureBox();
+    } else {
+      this.mouse = new MouseProperties();
+    }
   }
 
   getCrop() {

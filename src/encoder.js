@@ -92,8 +92,14 @@ export function serialize(
 }
 
 export function generateCommand(inputs, cropBox, program = "", params = "") {
-  program === "purewebm" ? (params = "") : (program = "ffmpeg");
+  if (program === "purewebm") {
+    params = "";
+  } else {
+    program = "ffmpeg";
+  }
+
   const cropLavfi = serializeCropBox(cropBox);
+
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 }
 
@@ -142,9 +148,11 @@ function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
     if (subProcessMode) {
       inputs.push(...[...timestamps.split(" "), "-i", `${url}`]);
     } else {
-      inputSeeking
-        ? inputs.push(...[`${timestamps} -i "${url}"`])
-        : inputs.push(...[`-i "${url}" ${timestamps}`]);
+      if (inputSeeking) {
+        inputs.push(...[`${timestamps} -i "${url}"`]);
+      } else {
+        inputs.push(...[`-i "${url}" ${timestamps}`]);
+      }
     }
   }
 
