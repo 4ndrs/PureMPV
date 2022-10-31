@@ -52,7 +52,7 @@ export class Encoder {
     );
 
     let command = ["purewebm", ...inputs];
-    cropLavfi && command.push(...[...cropLavfi.split(" ")]);
+    cropLavfi && command.push(...cropLavfi.split(" "));
     this.burnSubs && command.push("-subs");
     extraParams && command.push(...["--extra_params", extraParams]);
 
