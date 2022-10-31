@@ -42,8 +42,9 @@ export default class CropBox {
       this.isCropping = true;
       this.setInitialMousePosition();
 
-      this.animationEnabled &&
+      if (this.animationEnabled) {
         mp.observe_property("mouse-pos", "native", animateBox);
+      }
 
       printMessage("Cropping started");
     } else {
@@ -51,7 +52,9 @@ export default class CropBox {
       this.drawBox();
       this.isCropping = false;
 
-      this.animationEnabled && mp.unobserve_property(animateBox);
+      if (this.animationEnabled) {
+        mp.unobserve_property(animateBox);
+      }
 
       printMessage("Cropping ended");
     }
@@ -70,15 +73,16 @@ export default class CropBox {
     this.constY = this.mouse.y;
 
     // ugly code
-    this.animationEnabled &&
-      ([box.w, box.h, box.x, box.y, box.constX, box.constY] = [
+    if (this.animationEnabled) {
+      [box.w, box.h, box.x, box.y, box.constX, box.constY] = [
         this.w,
         this.h,
         this.x,
         this.y,
         this.constX,
         this.constY,
-      ]);
+      ];
+    }
   }
 
   calculateBox() {

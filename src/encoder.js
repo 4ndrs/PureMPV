@@ -52,9 +52,18 @@ export class Encoder {
     );
 
     let command = ["purewebm", ...inputs];
-    cropLavfi && command.push(...cropLavfi.split(" "));
-    this.burnSubs && command.push("-subs");
-    extraParams && command.push(...["--extra_params", extraParams]);
+
+    if (cropLavfi) {
+      command.push(...cropLavfi.split(" "));
+    }
+
+    if (this.burnSubs) {
+      command.push("-subs");
+    }
+
+    if (extraParams) {
+      command.push(...["--extra_params", extraParams]);
+    }
 
     mp.command_native({
       name: "subprocess",

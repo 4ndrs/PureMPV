@@ -13,8 +13,9 @@ export function getStreamUrls(path) {
       let urls = [];
 
       for (const stream of streams) {
-        stream.search("googlevideo") !== -1 &&
+        if (stream.search("googlevideo") !== -1) {
           urls.push(stream.match(/http.*/)[0]);
+        }
       }
       return urls;
     }
