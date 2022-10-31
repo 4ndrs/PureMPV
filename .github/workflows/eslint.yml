@@ -1,4 +1,4 @@
-name: eslint
+name: ESLint
 
 on:
   push:
@@ -9,7 +9,8 @@ on:
       - main
 
 jobs:
-  build:
+  eslint:
+    name: Run ESLint
     runs-on: ubuntu-latest
 
     steps:
@@ -18,5 +19,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run eslint on src directory
+      - name: Run ESLint on src directory
         run: npx eslint src
