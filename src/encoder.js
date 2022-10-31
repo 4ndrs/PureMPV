@@ -146,12 +146,12 @@ function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
 
   for (const url of urls) {
     if (subProcessMode) {
-      inputs.push(...[...timestamps.split(" "), "-i", `${url}`]);
+      inputs.push(...timestamps.split(" "), "-i", `${url}`);
     } else {
       if (inputSeeking) {
-        inputs.push(...[`${timestamps} -i "${url}"`]);
+        inputs.push(`${timestamps} -i "${url}"`);
       } else {
-        inputs.push(...[`-i "${url}" ${timestamps}`]);
+        inputs.push(`-i "${url}" ${timestamps}`);
       }
     }
   }
