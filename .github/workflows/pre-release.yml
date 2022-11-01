@@ -1,0 +1,33 @@
+name: Pre-release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - src/**
+
+jobs:
+  build-and-release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint on src directory
+        run: npx eslint src
+
+      - name: Build main.js
+        run: npm run build
+
+      - name: Release
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+          automatic_release_tag: bleeding-edge
+          files: main.js
