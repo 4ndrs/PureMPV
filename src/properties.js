@@ -22,7 +22,6 @@ export class MouseProperties {
   }
 
   getProperties() {
-    const { x, y } = mp.get_property_native("mouse-pos");
-    [this.x, this.y] = [x, y];
+    ({ x: this.x, y: this.y } = mp.get_property_native("mouse-pos"));
   }
 }
