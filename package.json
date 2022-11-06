@@ -1,6 +1,6 @@
 {
   "name": "purempv",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Script to get the timestamps, cropping coordinates, and file path of the playing video, all within mpv",
   "main": "main.js",
   "scripts": {
