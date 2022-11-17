@@ -4,7 +4,7 @@ Script to get the timestamps, cropping coordinates, and file path of the playing
 
 ## Usage
 
-[vivy_test](https://user-images.githubusercontent.com/31898900/186554920-6ae33c4a-e510-4109-87f4-17ec1f19ca51.webm)
+[usage_preview.webm](https://user-images.githubusercontent.com/31898900/202451097-d03b39ef-9661-46d9-8afc-a68b6b85c614.webm)
 
 
 The script by default registers the start and end times by pressing <kbd>ctrl</kbd> + <kbd>e</kbd>, and waits until the user presses <kbd>ctrl</kbd> + <kbd>w</kbd> to copy the data to the primary X selection.
