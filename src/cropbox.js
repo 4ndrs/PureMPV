@@ -25,9 +25,9 @@ export default class CropBox {
     }
   }
 
-  getCrop() {
-    // Reset cropBox if coordinates are already set
-    if (this.w !== null) {
+  getCrop(pureMode) {
+    // Reset cropBox if coordinates are already set, and we are in PureMode
+    if (this.w !== null && pureMode) {
       this.resetCrop();
       return;
     }
