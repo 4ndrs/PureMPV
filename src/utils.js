@@ -13,12 +13,21 @@ export function copyToSelection(text, selection) {
     selection = "primary";
   }
 
-  mp.command_native({
+  const { status } = mp.command_native({
     name: "subprocess",
     args: ["xclip", "-selection", selection],
     stdin_data: text,
     detach: true,
   });
+
+  if (status === -3) {
+    mp.msg.error(`Received status: ${status}`);
+    printMessage(
+      "Error occurred during the execution of xclip. " +
+        "Please verify your xclip installation."
+    );
+    return;
+  }
 
   printMessage(`Copied to ${selection}: ${text}`);
 }
