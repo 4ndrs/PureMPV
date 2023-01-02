@@ -1,9 +1,18 @@
-// Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
+// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
 /* global mp */
 
-export function copyToSelection(text, selection) {
+export function copyToSelection(text, selection, copyUtility) {
+  if (copyUtility !== "xclip" && copyUtility !== "wl-copy") {
+    mp.msg.error(
+      `ERROR: ${copyUtility} is not a known copy utility. ` +
+        "Possible values are: xclip, wl-copy"
+    );
+    print("INFO: setting copy utility to 'xclip'");
+    copyUtility = "xclip";
+  }
+
   if (selection != "primary" && selection != "clipboard") {
     print(
       `ERROR: ${selection} is not a valid selection. ` +
@@ -13,9 +22,19 @@ export function copyToSelection(text, selection) {
     selection = "primary";
   }
 
+  let args;
+  if (copyUtility === "xclip") {
+    args = ["xclip", "-selection", selection];
+  } else {
+    args = ["wl-copy"];
+    if (selection === "primary") {
+      args = [...args, "--primary"];
+    }
+  }
+
   const { status } = mp.command_native({
     name: "subprocess",
-    args: ["xclip", "-selection", selection],
+    args,
     stdin_data: text,
     detach: true,
   });
@@ -23,13 +42,41 @@ export function copyToSelection(text, selection) {
   if (status === -3) {
     mp.msg.error(`Received status: ${status}`);
     printMessage(
-      "Error occurred during the execution of xclip. " +
-        "Please verify your xclip installation."
+      `Error occurred during the execution of ${copyUtility}. ` +
+        `Please verify your ${copyUtility} installation.`
     );
     return;
   }
 
   printMessage(`Copied to ${selection}: ${text}`);
+}
+
+export function getCopyUtility() {
+  const { status: xclipStatus } = mp.command_native({
+    name: "subprocess",
+    args: ["xclip", "-version"],
+    detach: true,
+    capture_stderr: true,
+  });
+
+  if (xclipStatus !== -3) {
+    return "xclip";
+  }
+
+  const { status: wlCopyStatus } = mp.command_native({
+    name: "subprocess",
+    args: ["wl-copy", "--version"],
+    detach: true,
+    capture_stderr: true,
+  });
+
+  if (wlCopyStatus !== -3) {
+    return "wl-copy";
+  }
+
+  throw new Error(
+    "No xclip/wl-clipboard found installed. Copying will not work."
+  );
 }
 
 export function getTimePosition() {

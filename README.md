@@ -90,7 +90,7 @@ c script-binding get-crop
 
 
 ## Installation
-The script currently only supports Linux, and depends on xclip to copy the data to X selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
+The script currently only supports Linux, and depends on xclip/wl-clipboard to copy the data the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
 ```console
 $ cd ~/.config/mpv/scripts
 $ git clone https://github.com/4ndrs/PureMPV.git

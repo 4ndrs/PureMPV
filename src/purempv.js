@@ -1,9 +1,15 @@
-// Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
+// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
 /* global mp */
 
-import { printMessage, copyToSelection, getTimePosition } from "./utils";
+import {
+  printMessage,
+  getCopyUtility,
+  copyToSelection,
+  getTimePosition,
+} from "./utils";
+
 import { Encoder, serialize, generateCommand } from "./encoder";
 import CropBox from "./cropbox";
 
@@ -47,6 +53,7 @@ class PureMPV {
       purewebm_extra_params: "",
       input_seeking: true,
       selection: "primary", // primary or clipboard, see man xclip
+      copy_utility: "detect", // detect xclip or wl-copy
       cropbox_animation: false,
     };
 
@@ -68,12 +75,27 @@ class PureMPV {
         printMessage(`Burn subtitles: ${this.encoder.burnSubs ? "yes" : "no"}`);
       });
     }
+
+    if (this.options.copy_utility === "detect") {
+      try {
+        this.options.copy_utility = getCopyUtility();
+      } catch (error) {
+        if (error instanceof Error) {
+          mp.msg.error(error.message);
+          this.options.copy_utility = "xclip";
+        }
+      }
+    }
   }
 
   crop() {
     this.cropBox.getCrop(this.options.pure_mode);
     if (!this.options.pure_mode && !this.cropBox.isCropping) {
-      copyToSelection(this.cropBox.toString(), this.options.selection);
+      copyToSelection(
+        this.cropBox.toString(),
+        this.options.selection,
+        this.options.copy_utility
+      );
     }
   }
 
@@ -96,7 +118,7 @@ class PureMPV {
     const path = mp.get_property("path");
 
     if (!this.options.pure_mode) {
-      copyToSelection(path, this.options.selection);
+      copyToSelection(path, this.options.selection, this.options.copy_utility);
       return;
     }
 
@@ -116,7 +138,7 @@ class PureMPV {
       this.options.ffmpeg_params
     );
 
-    copyToSelection(command, this.options.selection);
+    copyToSelection(command, this.options.selection, this.options.copy_utility);
   }
 
   getTimestamp(getEndTime) {
@@ -130,7 +152,11 @@ class PureMPV {
 
     if (!this.options.pure_mode) {
       // Copy to selection if PureMode is off
-      copyToSelection(timestamp, this.options.selection);
+      copyToSelection(
+        timestamp,
+        this.options.selection,
+        this.options.copy_utility
+      );
     } else if (!this.startTime) {
       this.startTime = timestamp;
       printMessage(`Set start time: ${this.startTime}`);
