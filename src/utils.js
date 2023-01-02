@@ -67,7 +67,7 @@ export function getCopyUtility() {
     name: "subprocess",
     args: ["wl-copy", "--version"],
     detach: true,
-    capture_stderr: true,
+    capture_stdout: true,
   });
 
   if (wlCopyStatus !== -3) {
