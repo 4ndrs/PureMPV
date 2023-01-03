@@ -1,20 +1,21 @@
-// Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
+// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
-/* global mp */
-
+import CropBox from "./cropbox";
 import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
 
-export class Encoder {
+class Encoder {
+  burnSubs: boolean;
+
   constructor() {
     this.burnSubs = false;
   }
 
-  preview(startTime, endTime, cropBox) {
+  preview(startTime: string | null, endTime: string | null, cropBox: CropBox) {
     printMessage("Processing preview");
 
-    const path = mp.get_property("path");
+    const path = mp.get_property("path") as string;
     const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
     const params =
       `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
@@ -30,7 +31,7 @@ export class Encoder {
     );
 
     const mappings = inputs.map(
-      (input, index) => `-map ${index}:v? -map ${index}:a?`
+      (_input, index) => `-map ${index}:v? -map ${index}:a?`
     );
 
     const command = `ffmpeg -hide_banner ${inputs.join(" ")} ${mappings.join(
@@ -40,8 +41,13 @@ export class Encoder {
     mp.commandv("run", "bash", "-c", `(${command})`);
   }
 
-  encode(startTime, endTime, cropBox, extraParams) {
-    const path = mp.get_property("path");
+  encode(
+    startTime: string | null,
+    endTime: string | null,
+    cropBox: CropBox,
+    extraParams?: string
+  ) {
+    const path = mp.get_property("path") as string;
     const { inputs, cropLavfi } = serialize(
       path,
       startTime,
@@ -51,7 +57,7 @@ export class Encoder {
       true
     );
 
-    let command = ["purewebm", ...inputs];
+    const command = ["purewebm", ...inputs];
 
     if (cropLavfi) {
       command.push(...cropLavfi.split(" "));
@@ -73,14 +79,14 @@ export class Encoder {
   }
 }
 
-export function serialize(
-  path,
-  startTime,
-  endTime,
-  cropBox,
-  pureWebmMode,
-  inputSeeking
-) {
+const serialize = (
+  path: string,
+  startTime: string | null,
+  endTime: string | null,
+  cropBox: CropBox | null,
+  pureWebmMode: boolean,
+  inputSeeking: boolean
+) => {
   const timestamps = serializeTimestamps(startTime, endTime);
   const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
   const cropLavfi = cropBox ? serializeCropBox(cropBox) : null;
@@ -89,9 +95,14 @@ export function serialize(
     inputs: inputs,
     cropLavfi: cropLavfi,
   };
-}
+};
 
-export function generateCommand(inputs, cropBox, program = "", params = "") {
+const generateCommand = (
+  inputs: Array<string>,
+  cropBox: CropBox,
+  program = "",
+  params = ""
+) => {
   if (program === "purewebm") {
     params = "";
   } else {
@@ -101,9 +112,12 @@ export function generateCommand(inputs, cropBox, program = "", params = "") {
   const cropLavfi = serializeCropBox(cropBox);
 
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
-}
+};
 
-function serializeTimestamps(startTime, endTime) {
+const serializeTimestamps = (
+  startTime: string | null,
+  endTime: string | null
+) => {
   if (startTime && endTime) {
     return `-ss ${startTime} -to ${endTime}`;
   }
@@ -114,9 +128,14 @@ function serializeTimestamps(startTime, endTime) {
     return `-to ${endTime}`;
   }
   return "";
-}
+};
 
-function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
+const serializeInputs = (
+  path: string,
+  timestamps: string,
+  subProcessMode: boolean,
+  inputSeeking: boolean
+) => {
   // Note: in subprocess mode this function returns an array of inputs adapted
   // for running as subprocess's args, if it is off, each item will be pushed as
   // a single string with quoted input paths. The following is an example of a single item
@@ -140,8 +159,9 @@ function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
   const inputs = [];
 
   if (!urls) {
-    print("ERROR: Unable to parse the stream urls. Source is unknown");
-    return;
+    throw new Error(
+      "ERROR: Unable to parse the stream urls. Source is unknown"
+    );
   }
 
   for (const url of urls) {
@@ -157,11 +177,13 @@ function serializeInputs(path, timestamps, subProcessMode, inputSeeking) {
   }
 
   return inputs;
-}
+};
 
-function serializeCropBox(cropBox) {
+const serializeCropBox = (cropBox: CropBox) => {
   if (cropBox.w !== null) {
     return `-lavfi crop=${cropBox.toString()}`;
   }
   return "";
-}
+};
+
+export { Encoder, generateCommand, serialize };

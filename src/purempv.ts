@@ -1,8 +1,6 @@
 // Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
-/* global mp */
-
 import {
   printMessage,
   getCopyUtility,
@@ -12,8 +10,15 @@ import {
 
 import { Encoder, serialize, generateCommand } from "./encoder";
 import CropBox from "./cropbox";
+import { Options } from "./types";
 
 class PureMPV {
+  options!: Options;
+  encoder: Encoder;
+  cropBox: CropBox;
+  endTime: string | null;
+  startTime: string | null;
+
   constructor() {
     this.setKeybindings();
     this.loadConfig();
@@ -35,7 +40,7 @@ class PureMPV {
     );
     mp.add_key_binding("ctrl+e", "get-timestamp", () => this.getTimestamp());
     mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
-      this.getTimestamp("end-time")
+      this.getTimestamp({ getEndTime: true })
     );
     mp.add_key_binding("ctrl+c", "get-crop", () => this.crop());
     mp.add_key_binding("ctrl+p", "toggle-puremode", () =>
@@ -99,8 +104,8 @@ class PureMPV {
     }
   }
 
-  encode(mode) {
-    const args = [this.startTime, this.endTime, this.cropBox];
+  encode(mode: "preview" | "purewebm" | "purewebm-extra-params") {
+    const args = [this.startTime, this.endTime, this.cropBox] as const;
     switch (mode) {
       case "preview":
         this.encoder.preview(...args);
@@ -115,7 +120,7 @@ class PureMPV {
   }
 
   getFilePath() {
-    const path = mp.get_property("path");
+    const path = mp.get_property("path") as string;
 
     if (!this.options.pure_mode) {
       copyToSelection(path, this.options.selection, this.options.copy_utility);
@@ -141,10 +146,10 @@ class PureMPV {
     copyToSelection(command, this.options.selection, this.options.copy_utility);
   }
 
-  getTimestamp(getEndTime) {
+  getTimestamp(options?: { getEndTime: boolean }) {
     const timestamp = getTimePosition();
 
-    if (getEndTime && this.options.pure_mode) {
+    if (options?.getEndTime && this.options.pure_mode) {
       this.endTime = timestamp;
       printMessage(`Set end time: ${this.endTime}`);
       return;
@@ -178,7 +183,7 @@ class PureMPV {
         this.encode("preview")
       );
       mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
-        this.getTimestamp("end-time")
+        this.getTimestamp({ getEndTime: true })
       );
     } else {
       status += "OFF";

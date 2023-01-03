@@ -1,14 +1,24 @@
-// Copyright (c) 2022 4ndrs <andres.degozaru@gmail.com>
+// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
-
-/* global mp */
 
 import { MouseProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
+import { MousePos } from "./types";
 
-export default class CropBox {
-  constructor(pureBoxEnabled, animationEnabled) {
+class CropBox {
+  w: number | null;
+  h: number | null;
+  x: number | null;
+  y: number | null;
+  constX: number | null;
+  constY: number | null;
+  pureBox!: PureBox;
+  mouse!: MouseProperties;
+  animationEnabled: boolean;
+  isCropping: boolean;
+
+  constructor(pureBoxEnabled: boolean, animationEnabled: boolean) {
     this.constX = null;
     this.constY = null;
     this.w = null;
@@ -17,6 +27,7 @@ export default class CropBox {
     this.y = null;
 
     this.animationEnabled = animationEnabled;
+    this.isCropping = false;
 
     if (pureBoxEnabled) {
       this.pureBox = new PureBox();
@@ -25,7 +36,7 @@ export default class CropBox {
     }
   }
 
-  getCrop(pureMode) {
+  getCrop(pureMode: boolean) {
     // Reset cropBox if coordinates are already set, and we are in PureMode
     if (this.w !== null && pureMode) {
       this.resetCrop();
@@ -74,7 +85,7 @@ export default class CropBox {
     this.constX = this.mouse.x;
     this.constY = this.mouse.y;
 
-    // ugly code
+    // TODO: remove, see the hack below
     if (this.animationEnabled) {
       [box.w, box.h, box.x, box.y, box.constX, box.constY] = [
         this.w,
@@ -88,26 +99,26 @@ export default class CropBox {
   }
 
   calculateBox() {
-    this.mouse.getProperties();
-    if (this.mouse.x < this.constX) {
+    this.mouse.getProperties(); // TODO: not inferring types, need rework
+    if ((this.mouse.x as number) < (this.constX as number)) {
       this.x = this.mouse.x;
       this.mouse.x = this.constX;
-      this.x = Math.min(this.mouse.x, this.x);
-      this.w = this.mouse.x - this.x;
+      this.x = Math.min(this.mouse.x as number, this.x as number);
+      this.w = (this.mouse.x as number) - this.x;
     } else {
-      this.mouse.x = Math.max(this.mouse.x, this.x);
-      this.x = Math.min(this.mouse.x, this.x);
+      this.mouse.x = Math.max(this.mouse.x as number, this.x as number);
+      this.x = Math.min(this.mouse.x, this.x as number);
       this.w = this.mouse.x - this.x;
     }
 
-    if (this.mouse.y < this.constY) {
+    if ((this.mouse.y as number) < (this.constY as number)) {
       this.y = this.mouse.y;
       this.mouse.y = this.constY;
-      this.y = Math.min(this.mouse.y, this.y);
-      this.h = this.mouse.y - this.y;
+      this.y = Math.min(this.mouse.y as number, this.y as number);
+      this.h = (this.mouse.y as number) - this.y;
     } else {
-      this.mouse.y = Math.max(this.mouse.y, this.y);
-      this.y = Math.min(this.mouse.y, this.y);
+      this.mouse.y = Math.max(this.mouse.y as number, this.y as number);
+      this.y = Math.min(this.mouse.y, this.y as number);
       this.h = this.mouse.y - this.y;
     }
   }
@@ -142,46 +153,65 @@ export default class CropBox {
   }
 }
 
+// TODO: this is a hack, need to find a better solution
 // Extremely ugly code down here
 // mp.observe_property won't work if these aren't out here
 // Inside the class "this" is undefined somehow when it reaches
 // the this.calculateBox() part in animateCropBox
-var box = { w: null, h: null, x: null, y: null };
-function animateBox(name, mousePos) {
+type Box = { [id: string]: number | null };
+const box: Box = {
+  w: null,
+  h: null,
+  x: null,
+  y: null,
+  constX: null,
+  constY: null,
+};
+
+const animateBox = (_name: unknown, mousePos: unknown) => {
+  if (!isMousePos(mousePos)) {
+    throw new Error(`Not a MousePos: ${JSON.stringify(mousePos)}`);
+  }
+
   calculateBox(mousePos);
   drawBox();
-}
+};
 
-function drawBox() {
+const drawBox = () => {
   const color = "deeppink";
   mp.commandv(
     "vf",
     "add",
     `@box:drawbox=w=${box.w}:h=${box.h}:x=${box.x}:y=${box.y}:color=${color}`
   );
-}
+};
 
-function calculateBox(mousePos) {
+const calculateBox = (mousePos: MousePos) => {
   let { x, y } = mousePos;
-  if (x < box.constX) {
+  if (x < (box.constX as number)) {
     box.x = x;
-    x = box.constX;
+    x = box.constX as number;
     box.x = Math.min(x, box.x);
     box.w = x - box.x;
   } else {
-    x = Math.max(x, box.x);
-    box.x = Math.min(x, box.x);
+    x = Math.max(x, box.x as number);
+    box.x = Math.min(x, box.x as number);
     box.w = x - box.x;
   }
 
-  if (y < box.constY) {
+  if (y < (box.constY as number)) {
     box.y = y;
-    y = box.constY;
+    y = box.constY as number;
     box.y = Math.min(y, box.y);
     box.h = y - box.y;
   } else {
-    y = Math.max(y, box.y);
-    box.y = Math.min(y, box.y);
+    y = Math.max(y, box.y as number);
+    box.y = Math.min(y, box.y as number);
     box.h = y - box.y;
   }
-}
+};
+
+const isMousePos = (value: unknown): value is MousePos =>
+  (value as MousePos)?.x !== undefined && (value as MousePos)?.y !== undefined;
+
+export default CropBox;
