@@ -59,7 +59,7 @@ class PureMPV {
       input_seeking: true,
       selection: "primary", // primary or clipboard, see man xclip
       copy_utility: "detect", // detect xclip or wl-copy
-      cropbox_animation: false,
+      cropbox_animation: true,
     };
 
     mp.options.read_options(this.options, "PureMPV");

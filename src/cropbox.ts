@@ -17,6 +17,7 @@ class CropBox {
   mouse!: MouseProperties;
   animationEnabled: boolean;
   isCropping: boolean;
+  overlay!: mp.OSDOverlay;
 
   constructor(pureBoxEnabled: boolean, animationEnabled: boolean) {
     this.constX = null;
@@ -33,6 +34,7 @@ class CropBox {
       this.pureBox = new PureBox();
     } else {
       this.mouse = new MouseProperties();
+      this.overlay = mp.create_osd_overlay("ass-events");
     }
   }
 
@@ -129,12 +131,28 @@ class CropBox {
   }
 
   drawBox() {
-    const color = "deeppink";
-    mp.commandv(
-      "vf",
-      "add",
-      `@box:drawbox=w=${this.w}:h=${this.h}:x=${this.x}:y=${this.y}:color=${color}`
-    );
+    const deepPink = "9314FF"; // 0xFF1493
+    const borderColor = `{\\3c&${deepPink}&}`;
+    const fillColor = "{\\1a&FF&}";
+    const borderWidth = "{\\bord6}";
+    const scale = "{\\fscx200\\fscy200}";
+    const positionOffset = "{\\pos(0, 0)}";
+
+    const { x, y, width, height } = {
+      x: this.x as number,
+      y: this.y as number,
+      width: this.w as number,
+      height: this.h as number,
+    };
+
+    const box =
+      `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
+      `${y + height} ${x} ${y + height} {\\p0}`;
+
+    const data = `${positionOffset}${scale}${borderColor}${fillColor}${borderWidth}${box}`;
+
+    overlay.data = data;
+    overlay.update();
   }
 
   resetCrop() {
@@ -146,8 +164,8 @@ class CropBox {
     this.y = null;
 
     if (!this.pureBox) {
-      // Remove the box drawn with ffmpeg filters
-      mp.commandv("vf", "remove", "@box");
+      this.overlay.remove();
+      overlay.remove(); // TODO: remove, see hack below
     }
     printMessage("Crop reset");
   }
@@ -168,6 +186,8 @@ const box: Box = {
   constY: null,
 };
 
+const overlay = mp.create_osd_overlay("ass-events");
+
 const animateBox = (_name: unknown, mousePos: unknown) => {
   if (!isMousePos(mousePos)) {
     throw new Error(`Not a MousePos: ${JSON.stringify(mousePos)}`);
@@ -178,12 +198,28 @@ const animateBox = (_name: unknown, mousePos: unknown) => {
 };
 
 const drawBox = () => {
-  const color = "deeppink";
-  mp.commandv(
-    "vf",
-    "add",
-    `@box:drawbox=w=${box.w}:h=${box.h}:x=${box.x}:y=${box.y}:color=${color}`
-  );
+  const deepPink = "9314FF"; // 0xFF1493
+  const borderColor = `{\\3c&${deepPink}&}`;
+  const fillColor = "{\\1a&FF&}";
+  const borderWidth = "{\\bord6}";
+  const scale = "{\\fscx200\\fscy200}";
+  const positionOffset = "{\\pos(0, 0)}";
+
+  const { x, y, width, height } = {
+    x: box.x as number,
+    y: box.y as number,
+    width: box.w as number,
+    height: box.h as number,
+  };
+
+  const box2 =
+    `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
+    `${y + height} ${x} ${y + height} {\\p0}`;
+
+  const data = `${positionOffset}${scale}${borderColor}${fillColor}${borderWidth}${box2}`;
+
+  overlay.data = data;
+  overlay.update();
 };
 
 const calculateBox = (mousePos: MousePos) => {
