@@ -1,7 +1,7 @@
 // Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
 // SPDX-License-Identifier: MIT
 
-import { MouseProperties } from "./properties";
+import { MouseProperties, VideoProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
 import { Box, MousePos } from "./types";
@@ -9,6 +9,7 @@ import { Box, MousePos } from "./types";
 class CropBox {
   pureBox!: PureBox;
   mouse!: MouseProperties;
+  video!: VideoProperties;
   animationEnabled: boolean;
   isCropping: boolean;
   cropIsSet: boolean;
@@ -22,6 +23,7 @@ class CropBox {
       this.pureBox = new PureBox();
     } else {
       this.mouse = new MouseProperties();
+      this.video = new VideoProperties();
     }
   }
 
@@ -52,6 +54,7 @@ class CropBox {
       print("Cropping started");
     } else {
       overlay.remove();
+      this.normalizeCrop();
       this.isCropping = false;
       this.cropIsSet = true;
 
@@ -73,6 +76,57 @@ class CropBox {
     box.y = this.mouse.y;
     box.constX = this.mouse.x;
     box.constY = this.mouse.y;
+  }
+
+  normalizeCrop() {
+    this.video.getProperties();
+    const osdSize = mp.get_osd_size();
+
+    if (
+      typeof this.video.height !== "number" ||
+      typeof this.video.width !== "number"
+    ) {
+      throw new Error("Unable to get the video's properties");
+    }
+
+    if (
+      osdSize === undefined ||
+      osdSize.width === undefined ||
+      osdSize.height === undefined
+    ) {
+      throw new Error("Unable to get the OSD sizes");
+    }
+
+    if (box.w === null || box.h === null || box.x === null || box.y === null) {
+      throw new Error("cropBox is not set");
+    }
+
+    const { width: windowWidth, height: windowHeight } = osdSize;
+
+    let [yBoundary, xBoundary] = [0, 0];
+    let ratioWidth = (windowHeight * this.video.width) / this.video.height;
+    let ratioHeight = (windowWidth * this.video.height) / this.video.width;
+
+    if (ratioWidth > windowWidth) {
+      ratioWidth = windowWidth;
+      yBoundary = windowHeight - ratioHeight;
+    } else if (ratioHeight > windowHeight) {
+      ratioHeight = windowHeight;
+      xBoundary = windowWidth - ratioWidth;
+    }
+
+    box.y -= Math.ceil(yBoundary / 2);
+    box.x -= Math.ceil(xBoundary / 2);
+
+    const proportion = Math.min(
+      this.video.width / ratioWidth,
+      this.video.height / ratioHeight
+    );
+
+    box.w = Math.ceil(box.w * proportion);
+    box.h = Math.ceil(box.h * proportion);
+    box.x = Math.ceil(box.x * proportion);
+    box.y = Math.ceil(box.y * proportion);
   }
 
   /**
