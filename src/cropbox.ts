@@ -4,49 +4,39 @@
 import { MouseProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
-import { MousePos } from "./types";
+import { Box, MousePos } from "./types";
 
 class CropBox {
-  w: number | null;
-  h: number | null;
-  x: number | null;
-  y: number | null;
-  constX: number | null;
-  constY: number | null;
   pureBox!: PureBox;
   mouse!: MouseProperties;
   animationEnabled: boolean;
   isCropping: boolean;
-  overlay!: mp.OSDOverlay;
+  cropIsSet: boolean;
 
   constructor(pureBoxEnabled: boolean, animationEnabled: boolean) {
-    this.constX = null;
-    this.constY = null;
-    this.w = null;
-    this.h = null;
-    this.x = null;
-    this.y = null;
-
     this.animationEnabled = animationEnabled;
     this.isCropping = false;
+    this.cropIsSet = false;
 
     if (pureBoxEnabled) {
       this.pureBox = new PureBox();
     } else {
       this.mouse = new MouseProperties();
-      this.overlay = mp.create_osd_overlay("ass-events");
     }
   }
 
+  /**
+   * Reset cropBox if coordinates are already set, and we are in PureMode
+   */
   getCrop(pureMode: boolean) {
-    // Reset cropBox if coordinates are already set, and we are in PureMode
-    if (this.w !== null && pureMode) {
+    if (this.cropIsSet && pureMode) {
       this.resetCrop();
       return;
     }
 
     if (this.pureBox) {
-      [this.x, this.y, this.w, this.h] = this.pureBox.getCrop();
+      [box.x, box.y, box.w, box.h] = this.pureBox.getCrop();
+      this.cropIsSet = true;
     } else {
       this.generateCrop();
     }
@@ -57,140 +47,60 @@ class CropBox {
       this.isCropping = true;
       this.setInitialMousePosition();
 
-      if (this.animationEnabled) {
-        mp.observe_property("mouse-pos", "native", animateBox);
-      }
+      mp.observe_property("mouse-pos", "native", animateBox);
 
       print("Cropping started");
     } else {
-      this.calculateBox();
-      this.overlay.remove();
-      overlay.remove(); // TODO: remove
+      overlay.remove();
       this.isCropping = false;
+      this.cropIsSet = true;
 
-      if (this.animationEnabled) {
-        mp.unobserve_property(animateBox);
-      }
+      mp.unobserve_property(animateBox);
 
       print("Cropping ended");
     }
   }
 
   animateCropBox() {
-    this.calculateBox();
-    this.drawBox();
+    this.mouse.getProperties(); // TODO: not inferring types, need rework
+    calculateBox({ x: this.mouse.x as number, y: this.mouse.y as number });
+    drawBox();
   }
 
   setInitialMousePosition() {
     this.mouse.getProperties();
-    this.x = this.mouse.x;
-    this.y = this.mouse.y;
-    this.constX = this.mouse.x;
-    this.constY = this.mouse.y;
-
-    // TODO: remove, see the hack below
-    if (this.animationEnabled) {
-      [box.w, box.h, box.x, box.y, box.constX, box.constY] = [
-        this.w,
-        this.h,
-        this.x,
-        this.y,
-        this.constX,
-        this.constY,
-      ];
-    }
+    box.x = this.mouse.x;
+    box.y = this.mouse.y;
+    box.constX = this.mouse.x;
+    box.constY = this.mouse.y;
   }
 
-  calculateBox() {
-    this.mouse.getProperties(); // TODO: not inferring types, need rework
-    if ((this.mouse.x as number) < (this.constX as number)) {
-      this.x = this.mouse.x;
-      this.mouse.x = this.constX;
-      this.x = Math.min(this.mouse.x as number, this.x as number);
-      this.w = (this.mouse.x as number) - this.x;
-    } else {
-      this.mouse.x = Math.max(this.mouse.x as number, this.x as number);
-      this.x = Math.min(this.mouse.x, this.x as number);
-      this.w = this.mouse.x - this.x;
-    }
-
-    if ((this.mouse.y as number) < (this.constY as number)) {
-      this.y = this.mouse.y;
-      this.mouse.y = this.constY;
-      this.y = Math.min(this.mouse.y as number, this.y as number);
-      this.h = (this.mouse.y as number) - this.y;
-    } else {
-      this.mouse.y = Math.max(this.mouse.y as number, this.y as number);
-      this.y = Math.min(this.mouse.y, this.y as number);
-      this.h = this.mouse.y - this.y;
-    }
-  }
-
+  /**
+   * Returns the cropBox as a string for ffmpeg's crop filter
+   */
   toString() {
-    // Return the cropBox as a string for ffmpeg's crop filter
-    return `${this.w}:${this.h}:${this.x}:${this.y}`;
-  }
-
-  drawBox() {
-    const deepPink = "9314FF"; // 0xFF1493
-    const borderColor = `{\\3c&${deepPink}&}`;
-    const fillColor = "{\\1a&FF&}";
-    const borderWidth = "{\\bord6}";
-    const positionOffset = "{\\pos(0, 0)}";
-
-    const osdSize = mp.get_osd_size();
-
-    if (
-      osdSize !== undefined &&
-      osdSize.width !== undefined &&
-      osdSize.height !== undefined
-    ) {
-      ({ width: this.overlay.res_x, height: this.overlay.res_y } = osdSize);
-    } else {
-      mp.msg.error(
-        "ERROR: Couldn't get the OSD size.The drawn cropbox might be incorrect."
-      );
-    }
-
-    const { x, y, width, height } = {
-      x: this.x as number,
-      y: this.y as number,
-      width: this.w as number,
-      height: this.h as number,
-    };
-
-    const box =
-      `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
-      `${y + height} ${x} ${y + height} {\\p0}`;
-
-    const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${box}`;
-
-    overlay.data = data;
-    overlay.update();
+    return box.x !== null ? `${box.w}:${box.h}:${box.x}:${box.y}` : "";
   }
 
   resetCrop() {
-    this.constX = null;
-    this.constY = null;
-    this.w = null;
-    this.h = null;
-    this.x = null;
-    this.y = null;
+    box.constX = null;
+    box.constY = null;
+    box.w = null;
+    box.h = null;
+    box.x = null;
+    box.y = null;
+
+    this.cropIsSet = false;
 
     if (!this.pureBox) {
-      this.overlay.remove();
-      overlay.remove(); // TODO: remove, see hack below
+      overlay.remove();
     }
+
     printMessage("Crop reset");
   }
 }
 
-// TODO: this is a hack, need to find a better solution
-// Extremely ugly code down here
 // mp.observe_property won't work if these aren't out here
-// Inside the class "this" is undefined somehow when it reaches
-// the this.calculateBox() part in animateCropBox
-type Box = { [id: string]: number | null };
 const box: Box = {
   w: null,
   h: null,
@@ -215,7 +125,7 @@ const drawBox = () => {
   const deepPink = "9314FF"; // 0xFF1493
   const borderColor = `{\\3c&${deepPink}&}`;
   const fillColor = "{\\1a&FF&}";
-  const borderWidth = "{\\bord6}";
+  const borderWidth = "{\\bord4}";
   const positionOffset = "{\\pos(0, 0)}";
 
   const osdSize = mp.get_osd_size();
@@ -239,11 +149,11 @@ const drawBox = () => {
     height: box.h as number,
   };
 
-  const box2 =
+  const _box =
     `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
     `${y + height} ${x} ${y + height} {\\p0}`;
 
-  const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${box2}`;
+  const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${_box}`;
 
   overlay.data = data;
   overlay.update();

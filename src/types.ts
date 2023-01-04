@@ -17,6 +17,15 @@ export interface MousePos {
   y: number;
 }
 
+export interface Box {
+  constX: number | null;
+  constY: number | null;
+  w: number | null;
+  h: number | null;
+  x: number | null;
+  y: number | null;
+}
+
 export type Selection = "primary" | "clipboard";
 export type CopyUtility = "detect" | "xclip" | "wl-copy";
 export type CopyMode = "ffmpeg" | "purewebm";

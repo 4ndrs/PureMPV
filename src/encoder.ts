@@ -180,7 +180,8 @@ const serializeInputs = (
 };
 
 const serializeCropBox = (cropBox: CropBox) => {
-  if (cropBox.w !== null) {
+  const cropBoxString = cropBox.toString();
+  if (cropBoxString !== "") {
     return `-lavfi crop=${cropBox.toString()}`;
   }
   return "";
