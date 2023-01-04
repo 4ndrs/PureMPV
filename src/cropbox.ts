@@ -79,7 +79,10 @@ class CropBox {
    * Returns the cropBox as a string for ffmpeg's crop filter
    */
   toString() {
-    return box.x !== null ? `${box.w}:${box.h}:${box.x}:${box.y}` : "";
+    if (this.cropIsSet) {
+      return `${box.w}:${box.h}:${box.x}:${box.y}`;
+    }
+    return "";
   }
 
   resetCrop() {
