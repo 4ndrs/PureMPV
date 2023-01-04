@@ -94,23 +94,9 @@ c script-binding get-crop
 
 ## Building
 
-For building, having npm installed is necessary. This project uses Babel for transpiling and Rollup for bundling. To generate the ```main.js``` file with the latest changes, proceed with the following:
+For building, having npm installed is necessary. To generate the ```main.js``` file with the latest changes, proceed with the following:
 
 ```console
 $ npm ci
-
-added 284 packages, and audited 285 packages in 944ms
-
-35 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-
 $ npm run build
-
-> purempv@0.1.0 build
-> rollup -c
-
-src/purempv.js → main.js...
-created main.js in 623ms
 ```
