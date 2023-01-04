@@ -8,6 +8,7 @@ export interface Options {
   input_seeking: boolean;
   selection: Selection;
   copy_utility: CopyUtility;
+  hide_osc_on_crop: boolean;
   [id: string]: string | number | boolean;
 }
 

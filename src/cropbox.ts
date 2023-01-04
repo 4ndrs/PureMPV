@@ -11,9 +11,11 @@ class CropBox {
   mouse!: MouseProperties;
   video!: VideoProperties;
   isCropping: boolean;
+  hideOSC: boolean;
 
-  constructor(pureBoxEnabled: boolean) {
+  constructor(pureBoxEnabled: boolean, hideOSC: boolean) {
     this.isCropping = false;
+    this.hideOSC = hideOSC;
 
     if (pureBoxEnabled) {
       this.pureBox = new PureBox();
@@ -43,6 +45,10 @@ class CropBox {
 
       mp.observe_property("mouse-pos", "native", animateBox);
 
+      if (this.hideOSC) {
+        mp.command("script-message osc-visibility never");
+      }
+
       print("Cropping started");
     } else {
       overlay.remove();
@@ -51,6 +57,10 @@ class CropBox {
       this.isCropping = false;
 
       mp.unobserve_property(animateBox);
+
+      if (this.hideOSC) {
+        mp.command("script-message osc-visibility auto");
+      }
 
       print("Cropping ended");
     }
