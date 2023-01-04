@@ -27,10 +27,7 @@ class PureMPV {
     this.startTime = null;
 
     this.encoder = new Encoder();
-    this.cropBox = new CropBox(
-      this.options.pure_box,
-      this.options.cropbox_animation
-    );
+    this.cropBox = new CropBox(this.options.pure_box);
   }
 
   setKeybindings() {
@@ -59,7 +56,6 @@ class PureMPV {
       input_seeking: true,
       selection: "primary", // primary or clipboard, see man xclip
       copy_utility: "detect", // detect xclip or wl-copy
-      cropbox_animation: true,
     };
 
     mp.options.read_options(this.options, "PureMPV");

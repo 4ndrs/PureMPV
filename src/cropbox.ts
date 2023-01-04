@@ -10,12 +10,10 @@ class CropBox {
   pureBox!: PureBox;
   mouse!: MouseProperties;
   video!: VideoProperties;
-  animationEnabled: boolean;
   isCropping: boolean;
   cropIsSet: boolean;
 
-  constructor(pureBoxEnabled: boolean, animationEnabled: boolean) {
-    this.animationEnabled = animationEnabled;
+  constructor(pureBoxEnabled: boolean) {
     this.isCropping = false;
     this.cropIsSet = false;
 

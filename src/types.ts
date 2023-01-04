@@ -8,7 +8,6 @@ export interface Options {
   input_seeking: boolean;
   selection: Selection;
   copy_utility: CopyUtility;
-  cropbox_animation: boolean;
   [id: string]: string | number | boolean;
 }
 
