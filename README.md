@@ -91,6 +91,35 @@ Keybindings can be changed using the names in this table and modifying your inpu
 c script-binding get-crop
 ```
 
+## Configuration file
+
+The configuration file is located in ```$HOME/.config/mpv/script-opt/PureMPV.conf```, and with it, it is possible to change the following options:
+|Option key|Values|Details|
+|----------|----|------|
+|pure_mode| yes<br>no| Specifies if PureMode will be activated when running. Default is **yes**.
+|copy_mode| ffmpeg<br>purewebm| Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
+|pure_webm| yes<br>no| Specifies if encoding with PureWebM should be activated. Default is **no**.
+|ffmpeg_params| params| Specifies which params to append to the copied string if copy_mode is ffmpeg. Default is **empty**.
+|purewebm_extra_params| params| Specifies which ```--extra_params``` to send to PureWebM when encoding with <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>o</kbd>. Default is **empty**.
+|selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.
+|copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
+|hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
+|input_seeking| yes<br>no| Specifies if we should assume ffmpeg input seeking in the copied string. Default is **yes**.
+|pure_box| yes<br>no| Specifies if we should get the cropping coordinates from PureBox. Default is **no**.
+
+An example of the content of a configuration file could be the following:
+```console
+copy_mode=purewebm
+pure_mode=yes
+pure_box=no
+pure_webm=yes
+selection=primary
+input_seeking=yes
+hide_osc_on_crop=yes
+purewebm_extra_params=-map 0 -c copy -c:v libx264 -crf 18 -preset veryslow
+ffmpeg_params=-map_metadata -1 -map_chapters -1 -f webm -row-mt 1 -speed 0 -c:v libvpx-vp9 -map 0:v -crf 10 -b:v 0 -pass 1 /dev/null -y&&\
+```
+
 
 ## Building
 
