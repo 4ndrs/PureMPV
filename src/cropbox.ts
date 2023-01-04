@@ -25,9 +25,6 @@ class CropBox {
     }
   }
 
-  /**
-   * Reset cropBox if coordinates are already set, and we are in PureMode
-   */
   getCrop(pureMode: boolean) {
     if (this.cropIsSet && pureMode) {
       this.resetCrop();
@@ -53,6 +50,7 @@ class CropBox {
     } else {
       overlay.remove();
       this.normalizeCrop();
+
       this.isCropping = false;
       this.cropIsSet = true;
 
@@ -60,12 +58,6 @@ class CropBox {
 
       print("Cropping ended");
     }
-  }
-
-  animateCropBox() {
-    this.mouse.getProperties(); // TODO: not inferring types, need rework
-    calculateBox({ x: this.mouse.x as number, y: this.mouse.y as number });
-    drawBox();
   }
 
   setInitialMousePosition() {
@@ -77,8 +69,8 @@ class CropBox {
   }
 
   normalizeCrop() {
-    this.video.getProperties();
     const osdSize = mp.get_osd_size();
+    this.video.getProperties();
 
     if (
       typeof this.video.height !== "number" ||
