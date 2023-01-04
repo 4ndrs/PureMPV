@@ -25,6 +25,15 @@ export interface Box {
   y: number | null;
 }
 
+export interface SetBox {
+  constX: number;
+  constY: number;
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+}
+
 export type Selection = "primary" | "clipboard";
 export type CopyUtility = "detect" | "xclip" | "wl-copy";
 export type CopyMode = "ffmpeg" | "purewebm";

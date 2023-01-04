@@ -4,18 +4,16 @@
 import { MouseProperties, VideoProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
-import { Box, MousePos } from "./types";
+import { Box, MousePos, SetBox } from "./types";
 
 class CropBox {
   pureBox!: PureBox;
   mouse!: MouseProperties;
   video!: VideoProperties;
   isCropping: boolean;
-  cropIsSet: boolean;
 
   constructor(pureBoxEnabled: boolean) {
     this.isCropping = false;
-    this.cropIsSet = false;
 
     if (pureBoxEnabled) {
       this.pureBox = new PureBox();
@@ -26,14 +24,13 @@ class CropBox {
   }
 
   getCrop(pureMode: boolean) {
-    if (this.cropIsSet && pureMode) {
+    if (pureMode && !this.isCropping && boxIsSet(box)) {
       this.resetCrop();
       return;
     }
 
     if (this.pureBox) {
       [box.x, box.y, box.w, box.h] = this.pureBox.getCrop();
-      this.cropIsSet = true;
     } else {
       this.generateCrop();
     }
@@ -52,7 +49,6 @@ class CropBox {
       this.normalizeCrop();
 
       this.isCropping = false;
-      this.cropIsSet = true;
 
       mp.unobserve_property(animateBox);
 
@@ -87,7 +83,7 @@ class CropBox {
       throw new Error("Unable to get the OSD sizes");
     }
 
-    if (box.w === null || box.h === null || box.x === null || box.y === null) {
+    if (!boxIsSet(box)) {
       throw new Error("cropBox is not set");
     }
 
@@ -123,7 +119,7 @@ class CropBox {
    * Returns the cropBox as a string for ffmpeg's crop filter
    */
   toString() {
-    if (this.cropIsSet) {
+    if (boxIsSet(box)) {
       return `${box.w}:${box.h}:${box.x}:${box.y}`;
     }
     return "";
@@ -136,12 +132,6 @@ class CropBox {
     box.h = null;
     box.x = null;
     box.y = null;
-
-    this.cropIsSet = false;
-
-    if (!this.pureBox) {
-      overlay.remove();
-    }
 
     printMessage("Crop reset");
   }
@@ -169,6 +159,10 @@ const animateBox = (_name: unknown, mousePos: unknown) => {
 };
 
 const drawBox = () => {
+  if (!boxIsSet(box)) {
+    throw new Error("cropbox is not set");
+  }
+
   const deepPink = "9314FF"; // 0xFF1493
   const borderColor = `{\\3c&${deepPink}&}`;
   const fillColor = "{\\1a&FF&}";
@@ -189,12 +183,7 @@ const drawBox = () => {
     );
   }
 
-  const { x, y, width, height } = {
-    x: box.x as number,
-    y: box.y as number,
-    width: box.w as number,
-    height: box.h as number,
-  };
+  const { x, y, w: width, h: height } = box;
 
   const _box =
     `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
@@ -207,31 +196,48 @@ const drawBox = () => {
 };
 
 const calculateBox = (mousePos: MousePos) => {
+  if (
+    typeof box.constX !== "number" ||
+    typeof box.constY !== "number" ||
+    typeof box.x !== "number" ||
+    typeof box.y !== "number"
+  ) {
+    throw new Error(`the cropbox was not initialized: ${JSON.stringify(box)}`);
+  }
+
   let { x, y } = mousePos;
-  if (x < (box.constX as number)) {
+
+  if (x < box.constX) {
     box.x = x;
-    x = box.constX as number;
+    x = box.constX;
     box.x = Math.min(x, box.x);
     box.w = x - box.x;
   } else {
-    x = Math.max(x, box.x as number);
-    box.x = Math.min(x, box.x as number);
+    x = Math.max(x, box.x);
+    box.x = Math.min(x, box.x);
     box.w = x - box.x;
   }
 
-  if (y < (box.constY as number)) {
+  if (y < box.constY) {
     box.y = y;
-    y = box.constY as number;
+    y = box.constY;
     box.y = Math.min(y, box.y);
     box.h = y - box.y;
   } else {
-    y = Math.max(y, box.y as number);
-    box.y = Math.min(y, box.y as number);
+    y = Math.max(y, box.y);
+    box.y = Math.min(y, box.y);
     box.h = y - box.y;
   }
 };
 
 const isMousePos = (value: unknown): value is MousePos =>
   (value as MousePos)?.x !== undefined && (value as MousePos)?.y !== undefined;
+
+const boxIsSet = (box: Box): box is SetBox =>
+  typeof box.w === "number" &&
+  typeof box.h === "number" &&
+  typeof box.x === "number" &&
+  typeof box.constX === "number" &&
+  typeof box.constY === "number";
 
 export default CropBox;
