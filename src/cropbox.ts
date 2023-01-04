@@ -61,17 +61,18 @@ class CropBox {
         mp.observe_property("mouse-pos", "native", animateBox);
       }
 
-      printMessage("Cropping started");
+      print("Cropping started");
     } else {
       this.calculateBox();
-      this.drawBox();
+      this.overlay.remove();
+      overlay.remove(); // TODO: remove
       this.isCropping = false;
 
       if (this.animationEnabled) {
         mp.unobserve_property(animateBox);
       }
 
-      printMessage("Cropping ended");
+      print("Cropping ended");
     }
   }
 
