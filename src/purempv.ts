@@ -13,7 +13,7 @@ import CropBox from "./cropbox";
 import { Options } from "./types";
 
 class PureMPV {
-  options!: Options;
+  options: Options;
   encoder: Encoder;
   cropBox: CropBox;
   endTime: string | null;
@@ -21,7 +21,8 @@ class PureMPV {
 
   constructor() {
     this.setKeybindings();
-    this.loadConfig();
+
+    this.options = this.loadConfig();
 
     this.endTime = null;
     this.startTime = null;
@@ -49,7 +50,7 @@ class PureMPV {
   }
 
   loadConfig() {
-    this.options = {
+    const options: Options = {
       copy_mode: "ffmpeg",
       pure_mode: true,
       pure_box: false,
@@ -62,14 +63,14 @@ class PureMPV {
       hide_osc_on_crop: false,
     };
 
-    mp.options.read_options(this.options, "PureMPV");
+    mp.options.read_options(options, "PureMPV");
 
-    if (!this.options.pure_mode) {
+    if (!options.pure_mode) {
       mp.remove_key_binding("generate-preview");
       mp.remove_key_binding("set-endtime");
     }
 
-    if (this.options.pure_webm) {
+    if (options.pure_webm) {
       // Enable encoding with PureWebM
       mp.add_key_binding("ctrl+o", "purewebm", () => this.encode("purewebm"));
       mp.add_key_binding("ctrl+shift+o", "purewebm-extra-params", () =>
@@ -81,16 +82,18 @@ class PureMPV {
       });
     }
 
-    if (this.options.copy_utility === "detect") {
+    if (options.copy_utility === "detect") {
       try {
-        this.options.copy_utility = getCopyUtility();
+        options.copy_utility = getCopyUtility();
       } catch (error) {
         if (error instanceof Error) {
           mp.msg.error(error.message);
-          this.options.copy_utility = "xclip";
+          options.copy_utility = "xclip";
         }
       }
     }
+
+    return options;
   }
 
   crop() {
