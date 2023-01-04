@@ -58,7 +58,7 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
-Note: in previous version the cropbox was drawn using ffmpeg filters, which was very heavy and only worked in certain conditions. This led to the creation of [PureBox](https://github.com/4ndrs/PureBox), as an alternative way of drawing the cropbox. With newer versions this is no longer the case, and there is no need to use PureBox.
+Note: in previous versions the cropbox was drawn using ffmpeg filters, which was very heavy and only worked in certain conditions. This led to the creation of [PureBox](https://github.com/4ndrs/PureBox), as an alternative way of drawing the cropbox. With newer versions this is no longer the case, and there is no need to use PureBox.
 
 ## PureWebM
 Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
