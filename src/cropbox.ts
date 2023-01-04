@@ -223,7 +223,8 @@ const calculateBox = (mousePos: MousePos) => {
 };
 
 const isMousePos = (value: unknown): value is MousePos =>
-  (value as MousePos)?.x !== undefined && (value as MousePos)?.y !== undefined;
+  typeof (value as MousePos)?.x === "number" &&
+  typeof (value as MousePos)?.y === "number";
 
 const isOSDSize = (value: mp.OSDSize | undefined): value is OSDSize =>
   typeof value !== "undefined" &&
