@@ -136,8 +136,21 @@ class CropBox {
     const borderColor = `{\\3c&${deepPink}&}`;
     const fillColor = "{\\1a&FF&}";
     const borderWidth = "{\\bord6}";
-    const scale = "{\\fscx200\\fscy200}";
     const positionOffset = "{\\pos(0, 0)}";
+
+    const osdSize = mp.get_osd_size();
+
+    if (
+      osdSize !== undefined &&
+      osdSize.width !== undefined &&
+      osdSize.height !== undefined
+    ) {
+      ({ width: this.overlay.res_x, height: this.overlay.res_y } = osdSize);
+    } else {
+      mp.msg.error(
+        "ERROR: Couldn't get the OSD size.The drawn cropbox might be incorrect."
+      );
+    }
 
     const { x, y, width, height } = {
       x: this.x as number,
@@ -150,7 +163,7 @@ class CropBox {
       `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
       `${y + height} ${x} ${y + height} {\\p0}`;
 
-    const data = `${positionOffset}${scale}${borderColor}${fillColor}${borderWidth}${box}`;
+    const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${box}`;
 
     overlay.data = data;
     overlay.update();
@@ -203,8 +216,21 @@ const drawBox = () => {
   const borderColor = `{\\3c&${deepPink}&}`;
   const fillColor = "{\\1a&FF&}";
   const borderWidth = "{\\bord6}";
-  const scale = "{\\fscx200\\fscy200}";
   const positionOffset = "{\\pos(0, 0)}";
+
+  const osdSize = mp.get_osd_size();
+
+  if (
+    osdSize !== undefined &&
+    osdSize.width !== undefined &&
+    osdSize.height !== undefined
+  ) {
+    ({ width: overlay.res_x, height: overlay.res_y } = osdSize);
+  } else {
+    mp.msg.error(
+      "ERROR: Couldn't get the OSD size.The drawn cropbox might be incorrect."
+    );
+  }
 
   const { x, y, width, height } = {
     x: box.x as number,
@@ -217,7 +243,7 @@ const drawBox = () => {
     `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
     `${y + height} ${x} ${y + height} {\\p0}`;
 
-  const data = `${positionOffset}${scale}${borderColor}${fillColor}${borderWidth}${box2}`;
+  const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${box2}`;
 
   overlay.data = data;
   overlay.update();
