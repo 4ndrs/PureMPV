@@ -2,6 +2,19 @@
 
 Script to get the timestamps, cropping coordinates, and file path of the playing video, for ffmpeg, all from within mpv. Additional encoding capabilities are also possible through an external utility, see [PureWebM](#purewebm) below.
 
+## Installation
+The script currently only supports Linux, and depends on xclip/wl-clipboard to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
+```console
+$ cd ~/.config/mpv/scripts
+$ git clone https://github.com/4ndrs/PureMPV.git
+```
+
+Or if just the script is preferred without downloading the whole source code, downloading the ```main.js``` file from the repository (or one of GitHub's automatic releases) and putting it in your mpv scripts folder is enough.
+
+Note: the ```main.js``` in the repository does not get updated on every commit. For a bleeding-edge release of the file, [click here](https://github.com/4ndrs/PureMPV/releases/download/bleeding-edge/main.js), or if cloned, see [Building](#building).
+
+It would probably be advisable to rename the ```main.js``` file when downloaded individually to avoid conflicts with other scripts in the folder.
+
 ## Usage
 
 [usage_preview.webm](https://user-images.githubusercontent.com/31898900/202451097-d03b39ef-9661-46d9-8afc-a68b6b85c614.webm)
@@ -78,15 +91,6 @@ Keybindings can be changed using the names in this table and modifying your inpu
 c script-binding get-crop
 ```
 
-
-## Installation
-The script currently only supports Linux, and depends on xclip/wl-clipboard to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
-```console
-$ cd ~/.config/mpv/scripts
-$ git clone https://github.com/4ndrs/PureMPV.git
-```
-
-Or if just the script is preferred without downloading the whole source code, downloading the ```main.js``` file and putting it in your mpv scripts folder is enough.
 
 ## Building
 
