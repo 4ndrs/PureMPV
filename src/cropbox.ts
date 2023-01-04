@@ -4,7 +4,7 @@
 import { MouseProperties, VideoProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
-import { Box, MousePos, SetBox } from "./types";
+import { Box, MousePos, OSDSize, SetBox } from "./types";
 
 class CropBox {
   pureBox!: PureBox;
@@ -75,11 +75,7 @@ class CropBox {
       throw new Error("Unable to get the video's properties");
     }
 
-    if (
-      osdSize === undefined ||
-      osdSize.width === undefined ||
-      osdSize.height === undefined
-    ) {
+    if (!isOSDSize(osdSize)) {
       throw new Error("Unable to get the OSD sizes");
     }
 
@@ -171,11 +167,7 @@ const drawBox = () => {
 
   const osdSize = mp.get_osd_size();
 
-  if (
-    osdSize !== undefined &&
-    osdSize.width !== undefined &&
-    osdSize.height !== undefined
-  ) {
+  if (isOSDSize(osdSize)) {
     ({ width: overlay.res_x, height: overlay.res_y } = osdSize);
   } else {
     mp.msg.error(
@@ -232,6 +224,11 @@ const calculateBox = (mousePos: MousePos) => {
 
 const isMousePos = (value: unknown): value is MousePos =>
   (value as MousePos)?.x !== undefined && (value as MousePos)?.y !== undefined;
+
+const isOSDSize = (value: mp.OSDSize | undefined): value is OSDSize =>
+  typeof value !== "undefined" &&
+  typeof value?.width === "number" &&
+  typeof value?.height === "number";
 
 const boxIsSet = (box: Box): box is SetBox =>
   typeof box.w === "number" &&

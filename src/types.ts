@@ -34,6 +34,11 @@ export interface SetBox {
   y: number;
 }
 
+export interface OSDSize {
+  width: number;
+  height: number;
+}
+
 export type Selection = "primary" | "clipboard";
 export type CopyUtility = "detect" | "xclip" | "wl-copy";
 export type CopyMode = "ffmpeg" | "purewebm";
