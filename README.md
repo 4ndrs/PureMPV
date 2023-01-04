@@ -41,21 +41,11 @@ A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd
 Output seeking can be enabled inserting ```input_seeking=no``` in the configuration file.
 
 ## Cropping
-To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, position the mouse to the desired location to generate the cropping coordinates. A box will be drawn with ffmpeg filters, it only works if hwdec is set to auto-copy, or disabled. Animation for the crop box is available if desired, it can be enabled inserting ```cropbox_animation=yes``` in the configuration file. The box will be removed after cancelling the crop.
+To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, pressing the key combination will start the cropping mode, position the mouse to the desired location to generate the cropping coordinates. To stop the cropping mode, press the key combination again. The cropbox will be set if PureMode is on, and just copied if it is off.
 
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
-## PureBox
-An alternative to drawing the cropbox with ffmpeg filters is using [PureBox](https://github.com/4ndrs/PureBox), which can be activated setting ```pure_box=yes``` in the configuration file. PureBox uses Xlib to draw the box on the window, which is much faster, less resource intensive, and works with hwdec=yes. It can be installed using pip:
-```console
-$ pip install purebox
-```
-or
-```console
-$ git clone https://github.com/4ndrs/PureBox.git
-$ cd PureBox
-$ pip install .
-```
+Note: in previous version the cropbox was drawn using ffmpeg filters, which was very heavy and only worked in certain conditions. This led to the creation of [PureBox](https://github.com/4ndrs/PureBox), as an alternative way of drawing the cropbox. With newer versions this is no longer the case, and there is no need to use PureBox.
 
 ## PureWebM
 Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
