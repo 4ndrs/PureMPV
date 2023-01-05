@@ -108,7 +108,8 @@ The configuration file is located in ```$HOME/.config/mpv/script-opt/PureMPV.con
 |pure_box| yes<br>no| Specifies if we should get the cropping coordinates from PureBox. Default is **no**.
 
 An example of the content of a configuration file could be the following:
-```console
+```bash
+# PureMPV.conf
 copy_mode=purewebm
 pure_mode=yes
 pure_box=no
