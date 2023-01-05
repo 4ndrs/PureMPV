@@ -93,7 +93,7 @@ c script-binding get-crop
 
 ## Configuration file
 
-The configuration file is located in ```$HOME/.config/mpv/script-opt/PureMPV.conf```, and with it, it is possible to change the following options:
+The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.conf```, and with it, it is possible to change the following options:
 |Option key|Values|Details|
 |----------|----|------|
 |pure_mode| yes<br>no| Specifies if PureMode will be activated when running. Default is **yes**.
