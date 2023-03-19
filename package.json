@@ -5,9 +5,13 @@
   "description": "Script to get the timestamps, cropping coordinates, and file path of the playing video, all within mpv",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest src/",
     "build": "rollup --config rollup.config.ts --configPlugin typescript",
     "dev": "npm run build -- --watch"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   },
   "repository": {
     "type": "git",
@@ -22,11 +26,14 @@
   "devDependencies": {
     "@rollup/plugin-terser": "^0.2.1",
     "@rollup/plugin-typescript": "^10.0.1",
+    "@types/jest": "^29.5.0",
     "@types/mpv-script": "^0.32.2",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
+    "jest": "^29.5.0",
     "rollup": "^3.9.1",
+    "ts-jest": "^29.0.5",
     "typescript": "^4.9.4"
   }
 }
