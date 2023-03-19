@@ -6,6 +6,10 @@ on:
       - main
     paths:
       - src/**
+      - .github/workflows/pre-release.yml
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
@@ -24,10 +28,10 @@ jobs:
       - name: Build main.js
         run: npm run build
 
-      - name: Release
+      - name: Pre-release
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
-          automatic_release_tag: bleeding-edge
+          tag_name: bleeding-edge
+          body: Pre-release with the latest commits
           files: main.js
