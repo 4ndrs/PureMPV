@@ -5,21 +5,19 @@ import {
   getTimePosition,
 } from "./utils";
 
-import { Encoder, serialize, generateCommand } from "./encoder";
+import { encode, preview, serialize, generateCommand } from "./encoder";
+
 import CropBox from "./cropbox";
 
 import purempv from "./store";
 
 class PureMPV {
-  encoder: Encoder;
   cropBox: CropBox;
 
   constructor() {
     this.setKeybindings();
-
     this.loadConfig();
 
-    this.encoder = new Encoder();
     this.cropBox = new CropBox();
   }
 
@@ -83,16 +81,13 @@ class PureMPV {
   encode(mode: "preview" | "purewebm" | "purewebm-extra-params") {
     switch (mode) {
       case "preview":
-        this.encoder.preview(this.cropBox);
+        preview(this.cropBox);
         return;
       case "purewebm":
-        this.encoder.encode(this.cropBox);
+        encode(this.cropBox);
         return;
       case "purewebm-extra-params":
-        this.encoder.encode(
-          this.cropBox,
-          purempv.options.purewebm_extra_params
-        );
+        encode(this.cropBox, purempv.options.purewebm_extra_params);
         return;
     }
   }

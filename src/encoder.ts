@@ -1,73 +1,72 @@
 import CropBox from "./cropbox";
+
 import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
 
 import purempv from "./store";
 
-class Encoder {
-  preview(cropBox: CropBox) {
-    printMessage("Processing preview");
+const preview = (cropBox: CropBox) => {
+  printMessage("Processing preview");
 
-    const path = mp.get_property("path") as string;
-    const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
+  const path = mp.get_property("path") as string;
+  const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
 
-    const params =
-      `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
-      "-c:v libx264 -preset ultrafast - | mpv - --loop";
+  const params =
+    `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
+    "-c:v libx264 -preset ultrafast - | mpv - --loop";
 
-    const { inputs, cropLavfi } = serialize(
-      path,
-      cropBox,
-      false,
-      true,
-      purempv.timestamps.start,
-      purempv.timestamps.end
-    );
+  const { inputs, cropLavfi } = serialize(
+    path,
+    cropBox,
+    false,
+    true,
+    purempv.timestamps.start,
+    purempv.timestamps.end
+  );
 
-    const mappings = inputs.map(
-      (_input, index) => `-map ${index}:v? -map ${index}:a?`
-    );
+  const mappings = inputs.map(
+    (_input, index) => `-map ${index}:v? -map ${index}:a?`
+  );
 
-    const command = `ffmpeg -hide_banner ${inputs.join(" ")} ${mappings.join(
-      " "
-    )} ${cropLavfi} ${params}`;
+  const command = `ffmpeg -hide_banner ${inputs.join(" ")} ${mappings.join(
+    " "
+  )} ${cropLavfi} ${params}`;
 
-    mp.commandv("run", "bash", "-c", `(${command})`);
+  mp.commandv("run", "bash", "-c", `(${command})`);
+};
+
+const encode = (cropBox: CropBox, extraParams?: string) => {
+  const path = mp.get_property("path") as string;
+
+  const { inputs, cropLavfi } = serialize(
+    path,
+    cropBox,
+    true,
+    true,
+    purempv.timestamps.start,
+    purempv.timestamps.end
+  );
+
+  const command = ["purewebm", ...inputs];
+
+  if (cropLavfi) {
+    command.push(...cropLavfi.split(" "));
   }
 
-  encode(cropBox: CropBox, extraParams?: string) {
-    const path = mp.get_property("path") as string;
-
-    const { inputs, cropLavfi } = serialize(
-      path,
-      cropBox,
-      true,
-      true,
-      purempv.timestamps.start,
-      purempv.timestamps.end
-    );
-
-    const command = ["purewebm", ...inputs];
-
-    if (cropLavfi) {
-      command.push(...cropLavfi.split(" "));
-    }
-
-    if (purempv.purewebm.burnSubs) {
-      command.push("-subs");
-    }
-
-    if (extraParams) {
-      command.push(...["--extra_params", extraParams]);
-    }
-
-    mp.command_native({
-      name: "subprocess",
-      args: command,
-      detach: true,
-    });
+  if (purempv.purewebm.burnSubs) {
+    command.push("-subs");
   }
-}
+
+  if (extraParams) {
+    command.push(...["--extra_params", extraParams]);
+  }
+
+  mp.command_native({
+    name: "subprocess",
+    args: command,
+    detach: true,
+  });
+};
 
 const serialize = (
   path: string,
@@ -164,4 +163,4 @@ const serializeCropBox = (cropBox: CropBox) => {
   return "";
 };
 
-export { Encoder, generateCommand, serialize };
+export { preview, encode, generateCommand, serialize };
