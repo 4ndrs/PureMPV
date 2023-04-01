@@ -5,12 +5,6 @@ import { printMessage } from "./utils";
 import purempv from "./store";
 
 class Encoder {
-  burnSubs: boolean;
-
-  constructor() {
-    this.burnSubs = false;
-  }
-
   preview(cropBox: CropBox) {
     printMessage("Processing preview");
 
@@ -59,7 +53,7 @@ class Encoder {
       command.push(...cropLavfi.split(" "));
     }
 
-    if (this.burnSubs) {
+    if (purempv.purewebm.burnSubs) {
       command.push("-subs");
     }
 

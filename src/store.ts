@@ -13,8 +13,9 @@ const options: Options = {
   hide_osc_on_crop: false,
 };
 
+const purewebm = { burnSubs: false };
 const timestamps: { start?: string; end?: string } = {};
 
-const purempv = { options, timestamps };
+const purempv = { options, timestamps, purewebm };
 
 export default purempv;

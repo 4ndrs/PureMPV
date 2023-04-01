@@ -53,8 +53,11 @@ class PureMPV {
         this.encode("purewebm-extra-params")
       );
       mp.add_key_binding("ctrl+v", "toggle-burn-subs", () => {
-        this.encoder.burnSubs = !this.encoder.burnSubs;
-        printMessage(`Burn subtitles: ${this.encoder.burnSubs ? "yes" : "no"}`);
+        const { purewebm } = purempv;
+
+        purewebm.burnSubs = !purewebm.burnSubs;
+
+        printMessage(`Burn subtitles: ${purewebm.burnSubs ? "yes" : "no"}`);
       });
     }
 
