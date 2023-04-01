@@ -8,7 +8,7 @@ import {
 import { encode, preview, serialize, generateCommand } from "./encoder";
 import { getCrop } from "./cropbox";
 
-import purempv from "./purempv";
+import PureMPV from "./purempv";
 
 const setKeybindings = () => {
   mp.add_key_binding("ctrl+w", "get-file-path", getFilePath);
@@ -23,35 +23,35 @@ const setKeybindings = () => {
 };
 
 const loadConfig = () => {
-  mp.options.read_options(purempv.options, "PureMPV");
+  mp.options.read_options(PureMPV.options, "PureMPV");
 
-  if (!purempv.options.pure_mode) {
+  if (!PureMPV.options.pure_mode) {
     mp.remove_key_binding("generate-preview");
     mp.remove_key_binding("set-endtime");
   }
 
-  if (purempv.options.pure_webm) {
+  if (PureMPV.options.pure_webm) {
     mp.add_key_binding("ctrl+o", "purewebm", encode);
 
     mp.add_key_binding("ctrl+shift+o", "purewebm-extra-params", () =>
-      encode(purempv.options.purewebm_extra_params)
+      encode(PureMPV.options.purewebm_extra_params)
     );
 
     mp.add_key_binding("ctrl+v", "toggle-burn-subs", () => {
-      const { purewebm } = purempv;
+      const { purewebm } = PureMPV;
 
       purewebm.burnSubs = !purewebm.burnSubs;
       printMessage(`Burn subtitles: ${purewebm.burnSubs ? "yes" : "no"}`);
     });
   }
 
-  if (purempv.options.copy_utility === "detect") {
+  if (PureMPV.options.copy_utility === "detect") {
     try {
-      purempv.options.copy_utility = getCopyUtility();
+      PureMPV.options.copy_utility = getCopyUtility();
     } catch (error) {
       if (error instanceof Error) {
         mp.msg.error(error.message);
-        purempv.options.copy_utility = "xclip";
+        PureMPV.options.copy_utility = "xclip";
       }
     }
   }
@@ -60,8 +60,8 @@ const loadConfig = () => {
 const crop = () => {
   getCrop();
 
-  if (!purempv.options.pure_mode && !purempv.cropBox.isCropping) {
-    copyToSelection(purempv.cropBox.toString());
+  if (!PureMPV.options.pure_mode && !PureMPV.cropBox.isCropping) {
+    copyToSelection(PureMPV.cropBox.toString());
   }
 };
 
@@ -72,7 +72,7 @@ const getFilePath = () => {
     throw new Error("Unable to retrieve the path");
   }
 
-  if (!purempv.options.pure_mode) {
+  if (!PureMPV.options.pure_mode) {
     copyToSelection(path);
     return;
   }
@@ -81,9 +81,9 @@ const getFilePath = () => {
     path,
     { isCropping: false },
     false,
-    purempv.options.input_seeking,
-    purempv.timestamps.start,
-    purempv.timestamps.end
+    PureMPV.options.input_seeking,
+    PureMPV.timestamps.start,
+    PureMPV.timestamps.end
   );
 
   const command = generateCommand(inputs);
@@ -94,34 +94,34 @@ const getFilePath = () => {
 const getTimestamp = (options?: { getEndTime: boolean }) => {
   const timestamp = getTimePosition();
 
-  if (options?.getEndTime && purempv.options.pure_mode) {
-    purempv.timestamps.end = timestamp;
+  if (options?.getEndTime && PureMPV.options.pure_mode) {
+    PureMPV.timestamps.end = timestamp;
 
-    printMessage(`Set end time: ${purempv.timestamps.end}`);
+    printMessage(`Set end time: ${PureMPV.timestamps.end}`);
     return;
   }
 
-  if (!purempv.options.pure_mode) {
+  if (!PureMPV.options.pure_mode) {
     copyToSelection(timestamp);
-  } else if (!purempv.timestamps.start) {
-    purempv.timestamps.start = timestamp;
-    printMessage(`Set start time: ${purempv.timestamps.start}`);
-  } else if (!purempv.timestamps.end) {
-    purempv.timestamps.end = timestamp;
-    printMessage(`Set end time: ${purempv.timestamps.end}`);
+  } else if (!PureMPV.timestamps.start) {
+    PureMPV.timestamps.start = timestamp;
+    printMessage(`Set start time: ${PureMPV.timestamps.start}`);
+  } else if (!PureMPV.timestamps.end) {
+    PureMPV.timestamps.end = timestamp;
+    printMessage(`Set end time: ${PureMPV.timestamps.end}`);
   } else {
-    delete purempv.timestamps.start;
-    delete purempv.timestamps.end;
+    delete PureMPV.timestamps.start;
+    delete PureMPV.timestamps.end;
     printMessage("Times reset");
   }
 };
 
 const togglePureMode = () => {
-  purempv.options.pure_mode = !purempv.options.pure_mode;
+  PureMPV.options.pure_mode = !PureMPV.options.pure_mode;
 
   let status = "Pure Mode: ";
 
-  if (purempv.options.pure_mode) {
+  if (PureMPV.options.pure_mode) {
     status += "ON";
 
     mp.add_key_binding("ctrl+shift+w", "generate-preview", preview);

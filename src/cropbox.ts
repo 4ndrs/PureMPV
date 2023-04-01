@@ -1,17 +1,18 @@
 import { printMessage } from "./utils";
-import purempv from "./purempv";
+
+import PureMPV from "./purempv";
 
 import type { Box } from "./types";
 
 type Mouse = { x: number; y: number };
 type Video = { height: number; width: number };
 
-const { cropBox } = purempv;
+const { cropBox } = PureMPV;
 
 const overlay = mp.create_osd_overlay("ass-events");
 
 const getCrop = () => {
-  if (purempv.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
+  if (PureMPV.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
     resetCrop();
     return;
   }
@@ -27,7 +28,7 @@ const generateCrop = () => {
 
     mp.observe_property("mouse-pos", "native", animateBox);
 
-    if (purempv.options.hide_osc_on_crop) {
+    if (PureMPV.options.hide_osc_on_crop) {
       mp.command("script-message osc-visibility never");
     }
 
@@ -40,7 +41,7 @@ const generateCrop = () => {
 
     mp.unobserve_property(animateBox);
 
-    if (purempv.options.hide_osc_on_crop) {
+    if (PureMPV.options.hide_osc_on_crop) {
       mp.command("script-message osc-visibility auto");
     }
 

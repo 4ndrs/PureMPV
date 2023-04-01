@@ -1,31 +1,37 @@
-import purempv from "./purempv";
+import PureMPV from "./purempv";
 
 const copyToSelection = (text: string) => {
-  let { copy_utility: copyUtility, selection } = purempv.options;
+  let { copy_utility: copyUtility, selection } = PureMPV.options;
 
   if (copyUtility !== "xclip" && copyUtility !== "wl-copy") {
     mp.msg.error(
       `ERROR: ${copyUtility} is not a known copy utility. ` +
         "Possible values are: xclip, wl-copy"
     );
+
     print("INFO: setting copy utility to 'xclip'");
+
     copyUtility = "xclip";
   }
 
   if (selection != "primary" && selection != "clipboard") {
-    print(
+    mp.msg.error(
       `ERROR: ${selection} is not a valid selection. ` +
         `Possible values are: primary, clipboard`
     );
+
     print("INFO: setting selection to 'primary'");
+
     selection = "primary";
   }
 
   let args;
+
   if (copyUtility === "xclip") {
     args = ["xclip", "-selection", selection];
   } else {
     args = ["wl-copy"];
+
     if (selection === "primary") {
       args = [...args, "--primary"];
     }
@@ -40,10 +46,12 @@ const copyToSelection = (text: string) => {
 
   if (status === -3) {
     mp.msg.error(`Received status: ${status}`);
+
     printMessage(
       `Error occurred during the execution of ${copyUtility}. ` +
         `Please verify your ${copyUtility} installation.`
     );
+
     return;
   }
 
@@ -82,7 +90,12 @@ const getCopyUtility = () => {
  * Returns the current timestamp in the format HH:MM:SS
  */
 const getTimePosition = () => {
-  const timePos = mp.get_property_native("time-pos") as number;
+  const timePos = mp.get_property_native("time-pos");
+
+  if (typeof timePos !== "number") {
+    throw new Error("Unable to retrieve the time position");
+  }
+
   return new Date(timePos * 1000).toISOString().substring(11, 23);
 };
 

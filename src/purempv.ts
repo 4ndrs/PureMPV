@@ -24,6 +24,6 @@ const cropBox: Box = {
   },
 };
 
-const purempv = { options, timestamps, purewebm, cropBox };
+const PureMPV = { options, timestamps, purewebm, cropBox };
 
-export default purempv;
+export default PureMPV;

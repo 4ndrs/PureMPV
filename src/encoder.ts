@@ -2,7 +2,7 @@ import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
 import { boxIsSet } from "./cropbox";
 
-import purempv from "./purempv";
+import PureMPV from "./purempv";
 
 import type { Box } from "./types";
 
@@ -23,11 +23,11 @@ const preview = () => {
 
   const { inputs, cropLavfi } = serialize(
     path,
-    purempv.cropBox,
+    PureMPV.cropBox,
     false,
     true,
-    purempv.timestamps.start,
-    purempv.timestamps.end
+    PureMPV.timestamps.start,
+    PureMPV.timestamps.end
   );
 
   const mappings = inputs.map(
@@ -46,11 +46,11 @@ const encode = (extraParams?: string) => {
 
   const { inputs, cropLavfi } = serialize(
     path,
-    purempv.cropBox,
+    PureMPV.cropBox,
     true,
     true,
-    purempv.timestamps.start,
-    purempv.timestamps.end
+    PureMPV.timestamps.start,
+    PureMPV.timestamps.end
   );
 
   const command = ["purewebm", ...inputs];
@@ -59,7 +59,7 @@ const encode = (extraParams?: string) => {
     command.push(...cropLavfi.split(" "));
   }
 
-  if (purempv.purewebm.burnSubs) {
+  if (PureMPV.purewebm.burnSubs) {
     command.push("-subs");
   }
 
@@ -93,8 +93,8 @@ const serialize = (
 };
 
 const generateCommand = (inputs: string[]) => {
-  let program = purempv.options.copy_mode;
-  let params = purempv.options.ffmpeg_params;
+  let program = PureMPV.options.copy_mode;
+  let params = PureMPV.options.ffmpeg_params;
 
   if (program === "purewebm") {
     params = "";
@@ -102,7 +102,7 @@ const generateCommand = (inputs: string[]) => {
     program = "ffmpeg";
   }
 
-  const cropLavfi = serializeCropBox(purempv.cropBox);
+  const cropLavfi = serializeCropBox(PureMPV.cropBox);
 
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 };
