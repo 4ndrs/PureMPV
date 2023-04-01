@@ -11,11 +11,6 @@ export interface Options {
   [id: string]: string | number | boolean;
 }
 
-export interface MousePos {
-  x: number;
-  y: number;
-}
-
 export interface Box {
   constX?: number;
   constY?: number;
@@ -24,21 +19,6 @@ export interface Box {
   x?: number;
   y?: number;
   isCropping: boolean;
-}
-
-export interface SetBox {
-  constX: number;
-  constY: number;
-  w: number;
-  h: number;
-  x: number;
-  y: number;
-  isCropping: boolean;
-}
-
-export interface OSDSize {
-  width: number;
-  height: number;
 }
 
 export type Selection = "primary" | "clipboard";

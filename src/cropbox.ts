@@ -1,22 +1,15 @@
-import { MouseProperties, VideoProperties } from "./properties";
-
 import { printMessage } from "./utils";
-
 import purempv from "./store";
 
-import type { Box, MousePos, OSDSize, SetBox } from "./types";
+import type { Box } from "./types";
+
+type Mouse = { x: number; y: number };
+type Video = { height: number; width: number };
 
 const { cropBox } = purempv;
+const overlay = mp.create_osd_overlay("ass-events");
 
 class CropBox {
-  mouse!: MouseProperties;
-  video!: VideoProperties;
-
-  constructor() {
-    this.mouse = new MouseProperties();
-    this.video = new VideoProperties();
-  }
-
   getCrop() {
     if (purempv.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
       this.resetCrop();
@@ -55,41 +48,27 @@ class CropBox {
   }
 
   setInitialMousePosition() {
-    this.mouse.getProperties();
-    if (this.mouse.x === null || this.mouse.y === null) {
-      throw new Error("Unable to retrieve mouse coordinates");
-    }
+    const mouse = getProperties("mouse");
 
-    cropBox.x = this.mouse.x;
-    cropBox.y = this.mouse.y;
-    cropBox.constX = this.mouse.x;
-    cropBox.constY = this.mouse.y;
+    cropBox.x = mouse.x;
+    cropBox.y = mouse.y;
+    cropBox.constX = mouse.x;
+    cropBox.constY = mouse.y;
   }
 
   normalizeCrop() {
-    const osdSize = mp.get_osd_size();
-    this.video.getProperties();
-
-    if (
-      typeof this.video.height !== "number" ||
-      typeof this.video.width !== "number"
-    ) {
-      throw new Error("Unable to get the video's properties");
-    }
-
-    if (!isOSDSize(osdSize)) {
-      throw new Error("Unable to get the OSD sizes");
-    }
+    const osd = getProperties("osd");
+    const video = getProperties("video");
 
     if (!boxIsSet(cropBox)) {
       throw new Error("cropBox is not set");
     }
 
-    const { width: windowWidth, height: windowHeight } = osdSize;
+    const { width: windowWidth, height: windowHeight } = osd;
 
     let [yBoundary, xBoundary] = [0, 0];
-    let ratioWidth = (windowHeight * this.video.width) / this.video.height;
-    let ratioHeight = (windowWidth * this.video.height) / this.video.width;
+    let ratioWidth = (windowHeight * video.width) / video.height;
+    let ratioHeight = (windowWidth * video.height) / video.width;
 
     if (ratioWidth > windowWidth) {
       ratioWidth = windowWidth;
@@ -103,8 +82,8 @@ class CropBox {
     cropBox.x -= Math.ceil(xBoundary / 2);
 
     const proportion = Math.min(
-      this.video.width / ratioWidth,
-      this.video.height / ratioHeight
+      video.width / ratioWidth,
+      video.height / ratioHeight
     );
 
     cropBox.w = Math.ceil(cropBox.w * proportion);
@@ -135,14 +114,21 @@ class CropBox {
   }
 }
 
-const overlay = mp.create_osd_overlay("ass-events");
-
-const animateBox = (_name: unknown, mousePos: unknown) => {
-  if (!isMousePos(mousePos)) {
-    throw new Error(`Not a MousePos: ${JSON.stringify(mousePos)}`);
+const animateBox = (_name: unknown, mouse: unknown) => {
+  if (
+    !mouse ||
+    typeof mouse !== "object" ||
+    !("x" in mouse) ||
+    !("y" in mouse) ||
+    typeof mouse.x !== "number" ||
+    typeof mouse.y !== "number"
+  ) {
+    throw new Error(
+      `Did not receive mouse coordinates: ${JSON.stringify(mouse)}`
+    );
   }
 
-  calculateBox(mousePos);
+  calculateBox({ x: mouse.x, y: mouse.y });
   drawBox();
 };
 
@@ -157,21 +143,16 @@ const drawBox = () => {
   const borderWidth = "{\\bord4}";
   const positionOffset = "{\\pos(0, 0)}";
 
-  const osdSize = mp.get_osd_size();
+  const osd = getProperties("osd");
 
-  if (isOSDSize(osdSize)) {
-    ({ width: overlay.res_x, height: overlay.res_y } = osdSize);
-  } else {
-    mp.msg.error(
-      "ERROR: Couldn't get the OSD size.The drawn cropbox might be incorrect."
-    );
-  }
+  overlay.res_y = osd.height;
+  overlay.res_x = osd.width;
 
-  const { x, y, w: width, h: height } = cropBox;
+  const { x, y, w, h } = cropBox;
 
   const _box =
-    `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
-    `${y + height} ${x} ${y + height} {\\p0}`;
+    `{\\p1}m ${x} ${y} l ${x + w} ${y} ${x + w} ` +
+    `${y + h} ${x} ${y + h} {\\p0}`;
 
   const data = `${positionOffset}${borderColor}${fillColor}${borderWidth}${_box}`;
 
@@ -179,7 +160,7 @@ const drawBox = () => {
   overlay.update();
 };
 
-const calculateBox = (mousePos: MousePos) => {
+const calculateBox = (mouse: Mouse) => {
   if (
     typeof cropBox.constX !== "number" ||
     typeof cropBox.constY !== "number" ||
@@ -191,41 +172,81 @@ const calculateBox = (mousePos: MousePos) => {
     );
   }
 
-  let { x, y } = mousePos;
-
-  if (x < cropBox.constX) {
-    cropBox.x = x;
-    x = cropBox.constX;
-    cropBox.x = Math.min(x, cropBox.x);
-    cropBox.w = x - cropBox.x;
+  if (mouse.x < cropBox.constX) {
+    cropBox.x = mouse.x;
+    mouse.x = cropBox.constX;
+    cropBox.x = Math.min(mouse.x, cropBox.x);
+    cropBox.w = mouse.x - cropBox.x;
   } else {
-    x = Math.max(x, cropBox.x);
-    cropBox.x = Math.min(x, cropBox.x);
-    cropBox.w = x - cropBox.x;
+    mouse.x = Math.max(mouse.x, cropBox.x);
+    cropBox.x = Math.min(mouse.x, cropBox.x);
+    cropBox.w = mouse.x - cropBox.x;
   }
 
-  if (y < cropBox.constY) {
-    cropBox.y = y;
-    y = cropBox.constY;
-    cropBox.y = Math.min(y, cropBox.y);
-    cropBox.h = y - cropBox.y;
+  if (mouse.y < cropBox.constY) {
+    cropBox.y = mouse.y;
+    mouse.y = cropBox.constY;
+    cropBox.y = Math.min(mouse.y, cropBox.y);
+    cropBox.h = mouse.y - cropBox.y;
   } else {
-    y = Math.max(y, cropBox.y);
-    cropBox.y = Math.min(y, cropBox.y);
-    cropBox.h = y - cropBox.y;
+    mouse.y = Math.max(mouse.y, cropBox.y);
+    cropBox.y = Math.min(mouse.y, cropBox.y);
+    cropBox.h = mouse.y - cropBox.y;
   }
 };
 
-const isMousePos = (value: unknown): value is MousePos =>
-  typeof (value as MousePos)?.x === "number" &&
-  typeof (value as MousePos)?.y === "number";
+// Overloading
+type GetProperties = {
+  (kind: "mouse"): Mouse;
+  (kind: "video"): Video;
+  (kind: "osd"): Video;
+};
 
-const isOSDSize = (value: mp.OSDSize | undefined): value is OSDSize =>
-  typeof value !== "undefined" &&
-  typeof value?.width === "number" &&
-  typeof value?.height === "number";
+const getProperties: GetProperties = (kind: "mouse" | "video" | "osd") => {
+  if (kind === "mouse") {
+    const mouse = mp.get_property_native("mouse-pos");
 
-const boxIsSet = (box: Box): box is SetBox =>
+    if (
+      !mouse ||
+      typeof mouse !== "object" ||
+      !("x" in mouse) ||
+      !("y" in mouse) ||
+      typeof mouse.x !== "number" ||
+      typeof mouse.y !== "number"
+    ) {
+      throw new Error("Unable to retrieve mouse properties");
+    }
+
+    return { x: mouse.x, y: mouse.y } as Mouse & Video;
+  }
+
+  if (kind === "osd") {
+    const osd = mp.get_osd_size();
+
+    if (
+      !osd ||
+      !("height" in osd) ||
+      !("width" in osd) ||
+      typeof osd.width !== "number" ||
+      typeof osd.height !== "number"
+    ) {
+      throw new Error("Unable to retrieve OSD size");
+    }
+
+    return { height: osd.height, width: osd.width } as Mouse & Video;
+  }
+
+  const width = mp.get_property_native("width");
+  const height = mp.get_property_native("height");
+
+  if (typeof height !== "number" || typeof width !== "number") {
+    throw new Error("Unable to retrieve video properties");
+  }
+
+  return { width, height } as Mouse & Video;
+};
+
+const boxIsSet = (box: Box): box is Required<Box> =>
   typeof box.w === "number" &&
   typeof box.h === "number" &&
   typeof box.x === "number" &&
