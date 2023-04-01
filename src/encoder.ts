@@ -11,22 +11,23 @@ class Encoder {
     this.burnSubs = false;
   }
 
-  preview(startTime: string | null, endTime: string | null, cropBox: CropBox) {
+  preview(cropBox: CropBox) {
     printMessage("Processing preview");
 
     const path = mp.get_property("path") as string;
     const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
+
     const params =
       `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
       "-c:v libx264 -preset ultrafast - | mpv - --loop";
 
     const { inputs, cropLavfi } = serialize(
       path,
-      startTime,
-      endTime,
       cropBox,
       false,
-      true
+      true,
+      purempv.timestamps.start,
+      purempv.timestamps.end
     );
 
     const mappings = inputs.map(
@@ -40,20 +41,16 @@ class Encoder {
     mp.commandv("run", "bash", "-c", `(${command})`);
   }
 
-  encode(
-    startTime: string | null,
-    endTime: string | null,
-    cropBox: CropBox,
-    extraParams?: string
-  ) {
+  encode(cropBox: CropBox, extraParams?: string) {
     const path = mp.get_property("path") as string;
+
     const { inputs, cropLavfi } = serialize(
       path,
-      startTime,
-      endTime,
       cropBox,
       true,
-      true
+      true,
+      purempv.timestamps.start,
+      purempv.timestamps.end
     );
 
     const command = ["purewebm", ...inputs];
@@ -80,11 +77,11 @@ class Encoder {
 
 const serialize = (
   path: string,
-  startTime: string | null,
-  endTime: string | null,
   cropBox: CropBox | null,
   pureWebmMode: boolean,
-  inputSeeking: boolean
+  inputSeeking: boolean,
+  startTime?: string,
+  endTime?: string
 ) => {
   const timestamps = serializeTimestamps(startTime, endTime);
   const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
@@ -111,21 +108,10 @@ const generateCommand = (inputs: string[], cropBox: CropBox) => {
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 };
 
-const serializeTimestamps = (
-  startTime: string | null,
-  endTime: string | null
-) => {
-  if (startTime && endTime) {
-    return `-ss ${startTime} -to ${endTime}`;
-  }
-  if (startTime) {
-    return `-ss ${startTime}`;
-  }
-  if (endTime) {
-    return `-to ${endTime}`;
-  }
-  return "";
-};
+const serializeTimestamps = (start?: string, end?: string) =>
+  `${start ? "-ss " + start : ""}${
+    end ? (start ? " " : "") + "-to " + end : ""
+  }`;
 
 const serializeInputs = (
   path: string,

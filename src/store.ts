@@ -13,6 +13,8 @@ const options: Options = {
   hide_osc_on_crop: false,
 };
 
-const purempv = { options };
+const timestamps: { start?: string; end?: string } = {};
+
+const purempv = { options, timestamps };
 
 export default purempv;

@@ -13,16 +13,11 @@ import purempv from "./store";
 class PureMPV {
   encoder: Encoder;
   cropBox: CropBox;
-  endTime: string | null;
-  startTime: string | null;
 
   constructor() {
     this.setKeybindings();
 
     this.loadConfig();
-
-    this.endTime = null;
-    this.startTime = null;
 
     this.encoder = new Encoder();
     this.cropBox = new CropBox();
@@ -83,16 +78,18 @@ class PureMPV {
   }
 
   encode(mode: "preview" | "purewebm" | "purewebm-extra-params") {
-    const args = [this.startTime, this.endTime, this.cropBox] as const;
     switch (mode) {
       case "preview":
-        this.encoder.preview(...args);
+        this.encoder.preview(this.cropBox);
         return;
       case "purewebm":
-        this.encoder.encode(...args);
+        this.encoder.encode(this.cropBox);
         return;
       case "purewebm-extra-params":
-        this.encoder.encode(...args, purempv.options.purewebm_extra_params);
+        this.encoder.encode(
+          this.cropBox,
+          purempv.options.purewebm_extra_params
+        );
         return;
     }
   }
@@ -107,11 +104,11 @@ class PureMPV {
 
     const { inputs } = serialize(
       path,
-      this.startTime,
-      this.endTime,
       null,
       false,
-      purempv.options.input_seeking
+      purempv.options.input_seeking,
+      purempv.timestamps.start,
+      purempv.timestamps.end
     );
 
     const command = generateCommand(inputs, this.cropBox);
@@ -123,22 +120,24 @@ class PureMPV {
     const timestamp = getTimePosition();
 
     if (options?.getEndTime && purempv.options.pure_mode) {
-      this.endTime = timestamp;
-      printMessage(`Set end time: ${this.endTime}`);
+      purempv.timestamps.end = timestamp;
+
+      printMessage(`Set end time: ${purempv.timestamps.end}`);
       return;
     }
 
     if (!purempv.options.pure_mode) {
       // Copy to selection if PureMode is off
       copyToSelection(timestamp);
-    } else if (!this.startTime) {
-      this.startTime = timestamp;
-      printMessage(`Set start time: ${this.startTime}`);
-    } else if (!this.endTime) {
-      this.endTime = timestamp;
-      printMessage(`Set end time: ${this.endTime}`);
+    } else if (!purempv.timestamps.start) {
+      purempv.timestamps.start = timestamp;
+      printMessage(`Set start time: ${purempv.timestamps.start}`);
+    } else if (!purempv.timestamps.end) {
+      purempv.timestamps.end = timestamp;
+      printMessage(`Set end time: ${purempv.timestamps.end}`);
     } else {
-      [this.startTime, this.endTime] = [null, null];
+      delete purempv.timestamps.start;
+      delete purempv.timestamps.end;
       printMessage("Times reset");
     }
   }
