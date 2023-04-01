@@ -58,8 +58,6 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
-Note: in previous versions the cropbox was drawn using ffmpeg filters, which was very heavy and only worked in certain conditions. This led to the creation of [PureBox](https://github.com/4ndrs/PureBox), as an alternative way of drawing the cropbox. With newer versions this is no longer the case, and there is no need to use PureBox.
-
 ## PureWebM
 Support for [PureWebM](https://github.com/4ndrs/PureWebM) is available setting ```pure_webm=yes``` in the configuration file. PureWebM is a wrapper for ffmpeg to make quick size restricted webms.
 
@@ -105,14 +103,12 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
 |hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
 |input_seeking| yes<br>no| Specifies if we should assume ffmpeg input seeking in the copied string. Default is **yes**.
-|pure_box| yes<br>no| Specifies if we should get the cropping coordinates from PureBox. Default is **no**.
 
 An example of the content of a configuration file could be the following:
 ```bash
-# PureMPV.conf
+# ~/.config/mpv/script-opts/PureMPV.conf
 copy_mode=purewebm
 pure_mode=yes
-pure_box=no
 pure_webm=yes
 selection=primary
 input_seeking=yes
