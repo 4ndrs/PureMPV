@@ -73,7 +73,7 @@ class PureMPV {
 
   crop() {
     this.cropBox.getCrop();
-    if (!purempv.options.pure_mode && !this.cropBox.isCropping) {
+    if (!purempv.options.pure_mode && !purempv.cropBox.isCropping) {
       copyToSelection(this.cropBox.toString());
     }
   }

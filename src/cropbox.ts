@@ -2,24 +2,23 @@ import { MouseProperties, VideoProperties } from "./properties";
 
 import { printMessage } from "./utils";
 
+import purempv from "./store";
+
 import type { Box, MousePos, OSDSize, SetBox } from "./types";
 
-import purempv from "./store";
+const { cropBox } = purempv;
 
 class CropBox {
   mouse!: MouseProperties;
   video!: VideoProperties;
-  isCropping: boolean;
 
   constructor() {
-    this.isCropping = false;
-
     this.mouse = new MouseProperties();
     this.video = new VideoProperties();
   }
 
   getCrop() {
-    if (purempv.options.pure_mode && !this.isCropping && boxIsSet(box)) {
+    if (purempv.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
       this.resetCrop();
       return;
     }
@@ -28,8 +27,8 @@ class CropBox {
   }
 
   generateCrop() {
-    if (!this.isCropping) {
-      this.isCropping = true;
+    if (!cropBox.isCropping) {
+      cropBox.isCropping = true;
       this.setInitialMousePosition();
 
       mp.observe_property("mouse-pos", "native", animateBox);
@@ -43,7 +42,7 @@ class CropBox {
       overlay.remove();
       this.normalizeCrop();
 
-      this.isCropping = false;
+      cropBox.isCropping = false;
 
       mp.unobserve_property(animateBox);
 
@@ -57,10 +56,14 @@ class CropBox {
 
   setInitialMousePosition() {
     this.mouse.getProperties();
-    box.x = this.mouse.x;
-    box.y = this.mouse.y;
-    box.constX = this.mouse.x;
-    box.constY = this.mouse.y;
+    if (this.mouse.x === null || this.mouse.y === null) {
+      throw new Error("Unable to retrieve mouse coordinates");
+    }
+
+    cropBox.x = this.mouse.x;
+    cropBox.y = this.mouse.y;
+    cropBox.constX = this.mouse.x;
+    cropBox.constY = this.mouse.y;
   }
 
   normalizeCrop() {
@@ -78,7 +81,7 @@ class CropBox {
       throw new Error("Unable to get the OSD sizes");
     }
 
-    if (!boxIsSet(box)) {
+    if (!boxIsSet(cropBox)) {
       throw new Error("cropBox is not set");
     }
 
@@ -96,51 +99,41 @@ class CropBox {
       xBoundary = windowWidth - ratioWidth;
     }
 
-    box.y -= Math.ceil(yBoundary / 2);
-    box.x -= Math.ceil(xBoundary / 2);
+    cropBox.y -= Math.ceil(yBoundary / 2);
+    cropBox.x -= Math.ceil(xBoundary / 2);
 
     const proportion = Math.min(
       this.video.width / ratioWidth,
       this.video.height / ratioHeight
     );
 
-    box.w = Math.ceil(box.w * proportion);
-    box.h = Math.ceil(box.h * proportion);
-    box.x = Math.ceil(box.x * proportion);
-    box.y = Math.ceil(box.y * proportion);
+    cropBox.w = Math.ceil(cropBox.w * proportion);
+    cropBox.h = Math.ceil(cropBox.h * proportion);
+    cropBox.x = Math.ceil(cropBox.x * proportion);
+    cropBox.y = Math.ceil(cropBox.y * proportion);
   }
 
   /**
    * Returns the cropBox as a string for ffmpeg's crop filter
    */
   toString() {
-    if (boxIsSet(box)) {
-      return `${box.w}:${box.h}:${box.x}:${box.y}`;
+    if (boxIsSet(cropBox)) {
+      return `${cropBox.w}:${cropBox.h}:${cropBox.x}:${cropBox.y}`;
     }
     return "";
   }
 
   resetCrop() {
-    box.constX = null;
-    box.constY = null;
-    box.w = null;
-    box.h = null;
-    box.x = null;
-    box.y = null;
+    delete cropBox.h;
+    delete cropBox.w;
+    delete cropBox.y;
+    delete cropBox.x;
+    delete cropBox.constY;
+    delete cropBox.constX;
 
     printMessage("Crop reset");
   }
 }
-
-// mp.observe_property won't work if these aren't out here
-const box: Box = {
-  w: null,
-  h: null,
-  x: null,
-  y: null,
-  constX: null,
-  constY: null,
-};
 
 const overlay = mp.create_osd_overlay("ass-events");
 
@@ -154,7 +147,7 @@ const animateBox = (_name: unknown, mousePos: unknown) => {
 };
 
 const drawBox = () => {
-  if (!boxIsSet(box)) {
+  if (!boxIsSet(cropBox)) {
     throw new Error("cropbox is not set");
   }
 
@@ -174,7 +167,7 @@ const drawBox = () => {
     );
   }
 
-  const { x, y, w: width, h: height } = box;
+  const { x, y, w: width, h: height } = cropBox;
 
   const _box =
     `{\\p1}m ${x} ${y} l ${x + width} ${y} ${x + width} ` +
@@ -188,36 +181,38 @@ const drawBox = () => {
 
 const calculateBox = (mousePos: MousePos) => {
   if (
-    typeof box.constX !== "number" ||
-    typeof box.constY !== "number" ||
-    typeof box.x !== "number" ||
-    typeof box.y !== "number"
+    typeof cropBox.constX !== "number" ||
+    typeof cropBox.constY !== "number" ||
+    typeof cropBox.x !== "number" ||
+    typeof cropBox.y !== "number"
   ) {
-    throw new Error(`the cropbox was not initialized: ${JSON.stringify(box)}`);
+    throw new Error(
+      `the cropbox was not initialized: ${JSON.stringify(cropBox)}`
+    );
   }
 
   let { x, y } = mousePos;
 
-  if (x < box.constX) {
-    box.x = x;
-    x = box.constX;
-    box.x = Math.min(x, box.x);
-    box.w = x - box.x;
+  if (x < cropBox.constX) {
+    cropBox.x = x;
+    x = cropBox.constX;
+    cropBox.x = Math.min(x, cropBox.x);
+    cropBox.w = x - cropBox.x;
   } else {
-    x = Math.max(x, box.x);
-    box.x = Math.min(x, box.x);
-    box.w = x - box.x;
+    x = Math.max(x, cropBox.x);
+    cropBox.x = Math.min(x, cropBox.x);
+    cropBox.w = x - cropBox.x;
   }
 
-  if (y < box.constY) {
-    box.y = y;
-    y = box.constY;
-    box.y = Math.min(y, box.y);
-    box.h = y - box.y;
+  if (y < cropBox.constY) {
+    cropBox.y = y;
+    y = cropBox.constY;
+    cropBox.y = Math.min(y, cropBox.y);
+    cropBox.h = y - cropBox.y;
   } else {
-    y = Math.max(y, box.y);
-    box.y = Math.min(y, box.y);
-    box.h = y - box.y;
+    y = Math.max(y, cropBox.y);
+    cropBox.y = Math.min(y, cropBox.y);
+    cropBox.h = y - cropBox.y;
   }
 };
 

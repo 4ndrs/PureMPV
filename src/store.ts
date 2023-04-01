@@ -1,4 +1,4 @@
-import type { Options } from "./types";
+import type { Options, Box } from "./types";
 
 const options: Options = {
   copy_mode: "ffmpeg",
@@ -15,6 +15,8 @@ const options: Options = {
 const purewebm = { burnSubs: false };
 const timestamps: { start?: string; end?: string } = {};
 
-const purempv = { options, timestamps, purewebm };
+const cropBox: Box = { isCropping: false };
+
+const purempv = { options, timestamps, purewebm, cropBox };
 
 export default purempv;

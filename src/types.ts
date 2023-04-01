@@ -17,12 +17,13 @@ export interface MousePos {
 }
 
 export interface Box {
-  constX: number | null;
-  constY: number | null;
-  w: number | null;
-  h: number | null;
-  x: number | null;
-  y: number | null;
+  constX?: number;
+  constY?: number;
+  w?: number;
+  h?: number;
+  x?: number;
+  y?: number;
+  isCropping: boolean;
 }
 
 export interface SetBox {
@@ -32,6 +33,7 @@ export interface SetBox {
   h: number;
   x: number;
   y: number;
+  isCropping: boolean;
 }
 
 export interface OSDSize {
