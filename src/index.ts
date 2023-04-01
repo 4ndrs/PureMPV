@@ -8,7 +8,7 @@ import {
 import { encode, preview, serialize, generateCommand } from "./encoder";
 import { getCrop } from "./cropbox";
 
-import purempv from "./store";
+import purempv from "./purempv";
 
 const setKeybindings = () => {
   mp.add_key_binding("ctrl+w", "get-file-path", getFilePath);

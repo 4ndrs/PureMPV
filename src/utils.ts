@@ -1,4 +1,4 @@
-import purempv from "./store";
+import purempv from "./purempv";
 
 const copyToSelection = (text: string) => {
   let { copy_utility: copyUtility, selection } = purempv.options;

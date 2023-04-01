@@ -2,7 +2,7 @@ import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
 import { boxIsSet } from "./cropbox";
 
-import purempv from "./store";
+import purempv from "./purempv";
 
 import type { Box } from "./types";
 
