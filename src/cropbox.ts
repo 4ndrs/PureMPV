@@ -7,112 +7,102 @@ type Mouse = { x: number; y: number };
 type Video = { height: number; width: number };
 
 const { cropBox } = purempv;
+
 const overlay = mp.create_osd_overlay("ass-events");
 
-class CropBox {
-  getCrop() {
-    if (purempv.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
-      this.resetCrop();
-      return;
+const getCrop = () => {
+  if (purempv.options.pure_mode && !cropBox.isCropping && boxIsSet(cropBox)) {
+    resetCrop();
+    return;
+  }
+
+  generateCrop();
+};
+
+const generateCrop = () => {
+  if (!cropBox.isCropping) {
+    cropBox.isCropping = true;
+
+    setInitialMousePosition();
+
+    mp.observe_property("mouse-pos", "native", animateBox);
+
+    if (purempv.options.hide_osc_on_crop) {
+      mp.command("script-message osc-visibility never");
     }
 
-    this.generateCrop();
-  }
+    print("Cropping started");
+  } else {
+    overlay.remove();
+    normalizeCrop();
 
-  generateCrop() {
-    if (!cropBox.isCropping) {
-      cropBox.isCropping = true;
-      this.setInitialMousePosition();
+    cropBox.isCropping = false;
 
-      mp.observe_property("mouse-pos", "native", animateBox);
+    mp.unobserve_property(animateBox);
 
-      if (purempv.options.hide_osc_on_crop) {
-        mp.command("script-message osc-visibility never");
-      }
-
-      print("Cropping started");
-    } else {
-      overlay.remove();
-      this.normalizeCrop();
-
-      cropBox.isCropping = false;
-
-      mp.unobserve_property(animateBox);
-
-      if (purempv.options.hide_osc_on_crop) {
-        mp.command("script-message osc-visibility auto");
-      }
-
-      print("Cropping ended");
-    }
-  }
-
-  setInitialMousePosition() {
-    const mouse = getProperties("mouse");
-
-    cropBox.x = mouse.x;
-    cropBox.y = mouse.y;
-    cropBox.constX = mouse.x;
-    cropBox.constY = mouse.y;
-  }
-
-  normalizeCrop() {
-    const osd = getProperties("osd");
-    const video = getProperties("video");
-
-    if (!boxIsSet(cropBox)) {
-      throw new Error("cropBox is not set");
+    if (purempv.options.hide_osc_on_crop) {
+      mp.command("script-message osc-visibility auto");
     }
 
-    const { width: windowWidth, height: windowHeight } = osd;
+    print("Cropping ended");
+  }
+};
 
-    let [yBoundary, xBoundary] = [0, 0];
-    let ratioWidth = (windowHeight * video.width) / video.height;
-    let ratioHeight = (windowWidth * video.height) / video.width;
+const setInitialMousePosition = () => {
+  const mouse = getProperties("mouse");
 
-    if (ratioWidth > windowWidth) {
-      ratioWidth = windowWidth;
-      yBoundary = windowHeight - ratioHeight;
-    } else if (ratioHeight > windowHeight) {
-      ratioHeight = windowHeight;
-      xBoundary = windowWidth - ratioWidth;
-    }
+  cropBox.x = mouse.x;
+  cropBox.y = mouse.y;
+  cropBox.constX = mouse.x;
+  cropBox.constY = mouse.y;
+};
 
-    cropBox.y -= Math.ceil(yBoundary / 2);
-    cropBox.x -= Math.ceil(xBoundary / 2);
+const normalizeCrop = () => {
+  const osd = getProperties("osd");
+  const video = getProperties("video");
 
-    const proportion = Math.min(
-      video.width / ratioWidth,
-      video.height / ratioHeight
-    );
-
-    cropBox.w = Math.ceil(cropBox.w * proportion);
-    cropBox.h = Math.ceil(cropBox.h * proportion);
-    cropBox.x = Math.ceil(cropBox.x * proportion);
-    cropBox.y = Math.ceil(cropBox.y * proportion);
+  if (!boxIsSet(cropBox)) {
+    throw new Error("cropBox is not set");
   }
 
-  /**
-   * Returns the cropBox as a string for ffmpeg's crop filter
-   */
-  toString() {
-    if (boxIsSet(cropBox)) {
-      return `${cropBox.w}:${cropBox.h}:${cropBox.x}:${cropBox.y}`;
-    }
-    return "";
+  const { width: windowWidth, height: windowHeight } = osd;
+
+  let [yBoundary, xBoundary] = [0, 0];
+  let ratioWidth = (windowHeight * video.width) / video.height;
+  let ratioHeight = (windowWidth * video.height) / video.width;
+
+  if (ratioWidth > windowWidth) {
+    ratioWidth = windowWidth;
+    yBoundary = windowHeight - ratioHeight;
+  } else if (ratioHeight > windowHeight) {
+    ratioHeight = windowHeight;
+    xBoundary = windowWidth - ratioWidth;
   }
 
-  resetCrop() {
-    delete cropBox.h;
-    delete cropBox.w;
-    delete cropBox.y;
-    delete cropBox.x;
-    delete cropBox.constY;
-    delete cropBox.constX;
+  cropBox.y -= Math.ceil(yBoundary / 2);
+  cropBox.x -= Math.ceil(xBoundary / 2);
 
-    printMessage("Crop reset");
-  }
-}
+  const proportion = Math.min(
+    video.width / ratioWidth,
+    video.height / ratioHeight
+  );
+
+  cropBox.w = Math.ceil(cropBox.w * proportion);
+  cropBox.h = Math.ceil(cropBox.h * proportion);
+  cropBox.x = Math.ceil(cropBox.x * proportion);
+  cropBox.y = Math.ceil(cropBox.y * proportion);
+};
+
+const resetCrop = () => {
+  delete cropBox.h;
+  delete cropBox.w;
+  delete cropBox.y;
+  delete cropBox.x;
+  delete cropBox.constY;
+  delete cropBox.constX;
+
+  printMessage("Crop reset");
+};
 
 const animateBox = (_name: unknown, mouse: unknown) => {
   if (
@@ -253,4 +243,4 @@ const boxIsSet = (box: Box): box is Required<Box> =>
   typeof box.constX === "number" &&
   typeof box.constY === "number";
 
-export default CropBox;
+export { getCrop, boxIsSet };

@@ -6,19 +6,14 @@ import {
 } from "./utils";
 
 import { encode, preview, serialize, generateCommand } from "./encoder";
-
-import CropBox from "./cropbox";
+import { getCrop } from "./cropbox";
 
 import purempv from "./store";
 
 class PureMPV {
-  cropBox: CropBox;
-
   constructor() {
     this.setKeybindings();
     this.loadConfig();
-
-    this.cropBox = new CropBox();
   }
 
   setKeybindings() {
@@ -72,22 +67,23 @@ class PureMPV {
   }
 
   crop() {
-    this.cropBox.getCrop();
+    getCrop();
+
     if (!purempv.options.pure_mode && !purempv.cropBox.isCropping) {
-      copyToSelection(this.cropBox.toString());
+      copyToSelection(purempv.cropBox.toString());
     }
   }
 
   encode(mode: "preview" | "purewebm" | "purewebm-extra-params") {
     switch (mode) {
       case "preview":
-        preview(this.cropBox);
+        preview();
         return;
       case "purewebm":
-        encode(this.cropBox);
+        encode();
         return;
       case "purewebm-extra-params":
-        encode(this.cropBox, purempv.options.purewebm_extra_params);
+        encode(purempv.options.purewebm_extra_params);
         return;
     }
   }
@@ -102,14 +98,14 @@ class PureMPV {
 
     const { inputs } = serialize(
       path,
-      null,
+      { isCropping: false },
       false,
       purempv.options.input_seeking,
       purempv.timestamps.start,
       purempv.timestamps.end
     );
 
-    const command = generateCommand(inputs, this.cropBox);
+    const command = generateCommand(inputs);
 
     copyToSelection(command);
   }

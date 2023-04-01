@@ -19,6 +19,7 @@ export interface Box {
   x?: number;
   y?: number;
   isCropping: boolean;
+  toString: () => string;
 }
 
 export type Selection = "primary" | "clipboard";

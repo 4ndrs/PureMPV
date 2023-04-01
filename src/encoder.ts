@@ -1,14 +1,20 @@
-import CropBox from "./cropbox";
-
 import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
+import { boxIsSet } from "./cropbox";
 
 import purempv from "./store";
 
-const preview = (cropBox: CropBox) => {
+import type { Box } from "./types";
+
+const preview = () => {
   printMessage("Processing preview");
 
-  const path = mp.get_property("path") as string;
+  const path = mp.get_property("path");
+
+  if (typeof path !== "string") {
+    throw new Error("Unable to get the path");
+  }
+
   const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
 
   const params =
@@ -17,7 +23,7 @@ const preview = (cropBox: CropBox) => {
 
   const { inputs, cropLavfi } = serialize(
     path,
-    cropBox,
+    purempv.cropBox,
     false,
     true,
     purempv.timestamps.start,
@@ -35,12 +41,12 @@ const preview = (cropBox: CropBox) => {
   mp.commandv("run", "bash", "-c", `(${command})`);
 };
 
-const encode = (cropBox: CropBox, extraParams?: string) => {
+const encode = (extraParams?: string) => {
   const path = mp.get_property("path") as string;
 
   const { inputs, cropLavfi } = serialize(
     path,
-    cropBox,
+    purempv.cropBox,
     true,
     true,
     purempv.timestamps.start,
@@ -70,7 +76,7 @@ const encode = (cropBox: CropBox, extraParams?: string) => {
 
 const serialize = (
   path: string,
-  cropBox: CropBox | null,
+  cropBox: Box,
   pureWebmMode: boolean,
   inputSeeking: boolean,
   startTime?: string,
@@ -78,7 +84,7 @@ const serialize = (
 ) => {
   const timestamps = serializeTimestamps(startTime, endTime);
   const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
-  const cropLavfi = cropBox ? serializeCropBox(cropBox) : null;
+  const cropLavfi = boxIsSet(cropBox) ? serializeCropBox(cropBox) : null;
 
   return {
     inputs: inputs,
@@ -86,7 +92,7 @@ const serialize = (
   };
 };
 
-const generateCommand = (inputs: string[], cropBox: CropBox) => {
+const generateCommand = (inputs: string[]) => {
   let program = purempv.options.copy_mode;
   let params = purempv.options.ffmpeg_params;
 
@@ -96,7 +102,7 @@ const generateCommand = (inputs: string[], cropBox: CropBox) => {
     program = "ffmpeg";
   }
 
-  const cropLavfi = serializeCropBox(cropBox);
+  const cropLavfi = serializeCropBox(purempv.cropBox);
 
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 };
@@ -155,12 +161,7 @@ const serializeInputs = (
   return inputs;
 };
 
-const serializeCropBox = (cropBox: CropBox) => {
-  const cropBoxString = cropBox.toString();
-  if (cropBoxString !== "") {
-    return `-lavfi crop=${cropBox.toString()}`;
-  }
-  return "";
-};
+const serializeCropBox = (cropBox: Box) =>
+  boxIsSet(cropBox) ? `-lavfi crop=${cropBox.toString()}` : "";
 
 export { preview, encode, generateCommand, serialize };

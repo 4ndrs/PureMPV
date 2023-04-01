@@ -15,7 +15,14 @@ const options: Options = {
 const purewebm = { burnSubs: false };
 const timestamps: { start?: string; end?: string } = {};
 
-const cropBox: Box = { isCropping: false };
+const cropBox: Box = {
+  isCropping: false,
+  toString() {
+    return typeof this.w === "number" && typeof this.h === "number"
+      ? `${cropBox.w}:${cropBox.h}:${cropBox.x}:${cropBox.y}`
+      : "";
+  },
+};
 
 const purempv = { options, timestamps, purewebm, cropBox };
 
