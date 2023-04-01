@@ -1,12 +1,12 @@
 import { MouseProperties, VideoProperties } from "./properties";
+
 import { printMessage } from "./utils";
-import PureBox from "./purebox";
-import { Box, MousePos, OSDSize, SetBox } from "./types";
+
+import type { Box, MousePos, OSDSize, SetBox } from "./types";
 
 import purempv from "./store";
 
 class CropBox {
-  pureBox!: PureBox;
   mouse!: MouseProperties;
   video!: VideoProperties;
   isCropping: boolean;
@@ -14,12 +14,8 @@ class CropBox {
   constructor() {
     this.isCropping = false;
 
-    if (purempv.options.pure_box) {
-      this.pureBox = new PureBox();
-    } else {
-      this.mouse = new MouseProperties();
-      this.video = new VideoProperties();
-    }
+    this.mouse = new MouseProperties();
+    this.video = new VideoProperties();
   }
 
   getCrop() {
@@ -28,11 +24,7 @@ class CropBox {
       return;
     }
 
-    if (this.pureBox) {
-      [box.x, box.y, box.w, box.h] = this.pureBox.getCrop();
-    } else {
-      this.generateCrop();
-    }
+    this.generateCrop();
   }
 
   generateCrop() {

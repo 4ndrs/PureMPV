@@ -3,7 +3,6 @@ import type { Options } from "./types";
 const options: Options = {
   copy_mode: "ffmpeg",
   pure_mode: true,
-  pure_box: false,
   pure_webm: false,
   ffmpeg_params: "",
   purewebm_extra_params: "",
