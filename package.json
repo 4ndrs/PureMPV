@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "test": "jest src/",
-    "build": "rollup --config rollup.config.ts --configPlugin typescript",
+    "build": "rm main.js && rollup --config rollup.config.ts --configPlugin typescript",
     "dev": "npm run build -- --watch"
   },
   "jest": {
