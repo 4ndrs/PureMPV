@@ -1,9 +1,8 @@
-// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
-// SPDX-License-Identifier: MIT
-
 import CropBox from "./cropbox";
 import { getStreamUrls } from "./streams";
 import { printMessage } from "./utils";
+
+import purempv from "./store";
 
 class Encoder {
   burnSubs: boolean;
@@ -97,12 +96,10 @@ const serialize = (
   };
 };
 
-const generateCommand = (
-  inputs: Array<string>,
-  cropBox: CropBox,
-  program = "",
-  params = ""
-) => {
+const generateCommand = (inputs: string[], cropBox: CropBox) => {
+  let program = purempv.options.copy_mode;
+  let params = purempv.options.ffmpeg_params;
+
   if (program === "purewebm") {
     params = "";
   } else {

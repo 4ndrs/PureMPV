@@ -1,23 +1,20 @@
-// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
-// SPDX-License-Identifier: MIT
-
 import { MouseProperties, VideoProperties } from "./properties";
 import { printMessage } from "./utils";
 import PureBox from "./purebox";
 import { Box, MousePos, OSDSize, SetBox } from "./types";
+
+import purempv from "./store";
 
 class CropBox {
   pureBox!: PureBox;
   mouse!: MouseProperties;
   video!: VideoProperties;
   isCropping: boolean;
-  hideOSC: boolean;
 
-  constructor(pureBoxEnabled: boolean, hideOSC: boolean) {
+  constructor() {
     this.isCropping = false;
-    this.hideOSC = hideOSC;
 
-    if (pureBoxEnabled) {
+    if (purempv.options.pure_box) {
       this.pureBox = new PureBox();
     } else {
       this.mouse = new MouseProperties();
@@ -25,8 +22,8 @@ class CropBox {
     }
   }
 
-  getCrop(pureMode: boolean) {
-    if (pureMode && !this.isCropping && boxIsSet(box)) {
+  getCrop() {
+    if (purempv.options.pure_mode && !this.isCropping && boxIsSet(box)) {
       this.resetCrop();
       return;
     }
@@ -45,7 +42,7 @@ class CropBox {
 
       mp.observe_property("mouse-pos", "native", animateBox);
 
-      if (this.hideOSC) {
+      if (purempv.options.hide_osc_on_crop) {
         mp.command("script-message osc-visibility never");
       }
 
@@ -58,7 +55,7 @@ class CropBox {
 
       mp.unobserve_property(animateBox);
 
-      if (this.hideOSC) {
+      if (purempv.options.hide_osc_on_crop) {
         mp.command("script-message osc-visibility auto");
       }
 

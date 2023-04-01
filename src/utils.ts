@@ -1,13 +1,8 @@
-// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
-// SPDX-License-Identifier: MIT
+import purempv from "./store";
 
-import { CopyUtility, Selection } from "./types";
+const copyToSelection = (text: string) => {
+  let { copy_utility: copyUtility, selection } = purempv.options;
 
-const copyToSelection = (
-  text: string,
-  selection: Selection,
-  copyUtility: CopyUtility
-) => {
   if (copyUtility !== "xclip" && copyUtility !== "wl-copy") {
     mp.msg.error(
       `ERROR: ${copyUtility} is not a known copy utility. ` +
