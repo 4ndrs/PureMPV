@@ -84,7 +84,7 @@ const serialize = (
 ) => {
   const timestamps = serializeTimestamps(startTime, endTime);
   const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
-  const cropLavfi = boxIsSet(cropBox) ? serializeCropBox(cropBox) : null;
+  const cropLavfi = boxIsSet(cropBox) ? serializeCropBox(cropBox) : "";
 
   return {
     inputs: inputs,
