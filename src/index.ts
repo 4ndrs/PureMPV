@@ -6,6 +6,7 @@ import {
 } from "./utils";
 
 import { encode, preview, serialize, generateCommand } from "./encoder";
+import { updateSharedData } from "./shared";
 import { getCrop } from "./cropbox";
 
 import PureMPV from "./purempv";
@@ -63,6 +64,10 @@ const crop = () => {
   if (!PureMPV.options.pure_mode && !PureMPV.cropBox.isCropping) {
     copyToSelection(PureMPV.cropBox.toString());
   }
+
+  if (!PureMPV.cropBox.isCropping) {
+    updateSharedData();
+  }
 };
 
 const getFilePath = () => {
@@ -98,6 +103,8 @@ const getTimestamp = (options?: { getEndTime: boolean }) => {
     PureMPV.timestamps.end = timestamp;
 
     printMessage(`Set end time: ${PureMPV.timestamps.end}`);
+
+    updateSharedData();
     return;
   }
 
@@ -105,14 +112,23 @@ const getTimestamp = (options?: { getEndTime: boolean }) => {
     copyToSelection(timestamp);
   } else if (!PureMPV.timestamps.start) {
     PureMPV.timestamps.start = timestamp;
+
     printMessage(`Set start time: ${PureMPV.timestamps.start}`);
+
+    updateSharedData();
   } else if (!PureMPV.timestamps.end) {
     PureMPV.timestamps.end = timestamp;
+
     printMessage(`Set end time: ${PureMPV.timestamps.end}`);
+
+    updateSharedData();
   } else {
     delete PureMPV.timestamps.start;
     delete PureMPV.timestamps.end;
+
     printMessage("Times reset");
+
+    updateSharedData();
   }
 };
 
@@ -141,3 +157,5 @@ const togglePureMode = () => {
 
 setKeybindings();
 loadConfig();
+
+updateSharedData();
