@@ -3,16 +3,13 @@ import type { Options, Box } from "./types";
 const options: Options = {
   copy_mode: "ffmpeg",
   pure_mode: true,
-  pure_webm: false,
   ffmpeg_params: "",
-  purewebm_extra_params: "",
   input_seeking: true,
   selection: "primary",
   copy_utility: "detect",
   hide_osc_on_crop: false,
 };
 
-const purewebm = { burnSubs: false };
 const timestamps: { start?: string; end?: string } = {};
 
 const cropBox: Box = {
@@ -24,6 +21,6 @@ const cropBox: Box = {
   },
 };
 
-const PureMPV = { options, timestamps, purewebm, cropBox };
+const PureMPV = { options, timestamps, cropBox };
 
 export default PureMPV;

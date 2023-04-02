@@ -5,7 +5,7 @@ import {
   getTimePosition,
 } from "./utils";
 
-import { encode, preview, serialize, generateCommand } from "./encoder";
+import { preview, serialize, generateCommand } from "./ffmpeg";
 import { updateSharedData } from "./shared";
 import { getCrop } from "./cropbox";
 
@@ -29,21 +29,6 @@ const loadConfig = () => {
   if (!PureMPV.options.pure_mode) {
     mp.remove_key_binding("generate-preview");
     mp.remove_key_binding("set-endtime");
-  }
-
-  if (PureMPV.options.pure_webm) {
-    mp.add_key_binding("ctrl+o", "purewebm", encode);
-
-    mp.add_key_binding("ctrl+shift+o", "purewebm-extra-params", () =>
-      encode(PureMPV.options.purewebm_extra_params)
-    );
-
-    mp.add_key_binding("ctrl+v", "toggle-burn-subs", () => {
-      const { purewebm } = PureMPV;
-
-      purewebm.burnSubs = !purewebm.burnSubs;
-      printMessage(`Burn subtitles: ${purewebm.burnSubs ? "yes" : "no"}`);
-    });
   }
 
   if (PureMPV.options.copy_utility === "detect") {

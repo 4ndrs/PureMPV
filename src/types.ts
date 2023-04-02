@@ -1,9 +1,7 @@
 export interface Options {
   copy_mode: CopyMode;
   pure_mode: boolean;
-  pure_webm: boolean;
   ffmpeg_params: string;
-  purewebm_extra_params: string;
   input_seeking: boolean;
   selection: Selection;
   copy_utility: CopyUtility;

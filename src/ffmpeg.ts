@@ -41,39 +41,6 @@ const preview = () => {
   mp.commandv("run", "bash", "-c", `(${command})`);
 };
 
-const encode = (extraParams?: string) => {
-  const path = mp.get_property("path") as string;
-
-  const { inputs, cropLavfi } = serialize(
-    path,
-    PureMPV.cropBox,
-    true,
-    true,
-    PureMPV.timestamps.start,
-    PureMPV.timestamps.end
-  );
-
-  const command = ["purewebm", ...inputs];
-
-  if (cropLavfi) {
-    command.push(...cropLavfi.split(" "));
-  }
-
-  if (PureMPV.purewebm.burnSubs) {
-    command.push("-subs");
-  }
-
-  if (extraParams) {
-    command.push(...["--extra_params", extraParams]);
-  }
-
-  mp.command_native({
-    name: "subprocess",
-    args: command,
-    detach: true,
-  });
-};
-
 const serialize = (
   path: string,
   cropBox: Box,
@@ -164,4 +131,4 @@ const serializeInputs = (
 const serializeCropBox = (cropBox: Box) =>
   boxIsSet(cropBox) ? `-lavfi crop=${cropBox.toString()}` : "";
 
-export { preview, encode, generateCommand, serialize };
+export { preview, generateCommand, serialize };
