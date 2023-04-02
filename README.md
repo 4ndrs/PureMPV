@@ -58,6 +58,27 @@ To crop, it is necessary to put the mouse pointer in the starting position of th
 
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
+## Shared Data API
+Other scripts can access PureMPV's internal data (cropbox and timestamps), which is available using mpv's `user-data` property. It can be requested any time using `mp.get_property_native("user-data/PureMPV")`. The returned object will have the following properties:
+
+```typescript
+interface PureMPVData {
+  cropbox: {
+    w: number | null;
+    h: number | null;
+    x: number | null;
+    y: number | null;
+  };
+
+  timestamps: {
+    start: string | null;
+    end: string | null;
+  };
+}
+````
+
+An example of this usage can be seen in [pwebm-helper](https://github.com/4ndrs/pwebm-helper), which uses PureMPV's data to encode video segments.
+
 ## Keybindings summary
 |Keybinding|Name|Action|
 |----------|----|------|
