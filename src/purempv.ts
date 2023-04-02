@@ -1,7 +1,7 @@
 import type { Options, Box } from "./types";
 
 const options: Options = {
-  copy_mode: "ffmpeg",
+  executable: "ffmpeg",
   pure_mode: true,
   ffmpeg_params: "",
   input_seeking: true,

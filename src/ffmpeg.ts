@@ -60,14 +60,8 @@ const serialize = (
 };
 
 const generateCommand = (inputs: string[]) => {
-  let program = PureMPV.options.copy_mode;
-  let params = PureMPV.options.ffmpeg_params;
-
-  if (program === "purewebm") {
-    params = "";
-  } else {
-    program = "ffmpeg";
-  }
+  const program = PureMPV.options.executable;
+  const params = PureMPV.options.ffmpeg_params;
 
   const cropLavfi = serializeCropBox(PureMPV.cropBox);
 
