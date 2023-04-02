@@ -77,7 +77,7 @@ interface PureMPVData {
 }
 ````
 
-An example of this usage can be seen in [pwebm-helper](https://github.com/4ndrs/pwebm-helper), which uses PureMPV's data to encode video segments.
+An example of its usage can be seen in [pwebm-helper](https://github.com/4ndrs/pwebm-helper), which uses PureMPV's data to encode video segments.
 
 ## Keybindings summary
 |Keybinding|Name|Action|
