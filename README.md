@@ -81,7 +81,7 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |Option key|Values|Details|
 |----------|----|------|
 |pure_mode| yes<br>no| Specifies if PureMode will be activated when running. Default is **yes**.
-|copy_mode| ffmpeg<br>purewebm| Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
+|executable| executable | Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
 |ffmpeg_params| params| Specifies which params to append to the copied string if copy_mode is ffmpeg. Default is **empty**.
 |selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
@@ -91,7 +91,7 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 An example of the content of a configuration file could be the following:
 ```bash
 # ~/.config/mpv/script-opts/PureMPV.conf
-copy_mode=purewebm
+executable=ffmpeg
 pure_mode=yes
 selection=primary
 input_seeking=yes
