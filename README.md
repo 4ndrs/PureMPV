@@ -82,7 +82,7 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |----------|----|------|
 |pure_mode| yes<br>no| Specifies if PureMode will be activated when running. Default is **yes**.
 |executable| executable | Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
-|ffmpeg_params| params| Specifies which params to append to the copied string if copy_mode is ffmpeg. Default is **empty**.
+|ffmpeg_params| params| Specifies which params to append to the copied string. Default is **empty**.
 |selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
 |hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
