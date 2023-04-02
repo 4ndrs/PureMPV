@@ -28,7 +28,12 @@ jobs:
       - name: Build main.js
         run: npm run build
 
-      - name: Pre-release
+      - name: Delete previous pre-release
+        run: gh release delete --yes --cleanup-tag bleeding-edge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a new pre-release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
