@@ -103,6 +103,7 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
 |hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
 |input_seeking| yes<br>no| Specifies if we should assume ffmpeg input seeking in the copied string. Default is **yes**.
+|box_color| hex color | The color of the cropbox, represented as an #RRGGBB hexadecimal value. Default is **#FF1493**.
 
 
 ##### Keybinding options
