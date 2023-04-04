@@ -11,25 +11,8 @@ import { getCrop } from "./cropbox";
 
 import PureMPV from "./purempv";
 
-const setKeybindings = () => {
-  mp.add_key_binding("ctrl+w", "get-file-path", getFilePath);
-  mp.add_key_binding("ctrl+shift+w", "generate-preview", preview);
-  mp.add_key_binding("ctrl+e", "get-timestamp", getTimestamp);
-  mp.add_key_binding("ctrl+c", "get-crop", crop);
-  mp.add_key_binding("ctrl+p", "toggle-puremode", togglePureMode);
-
-  mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
-    getTimestamp({ getEndTime: true })
-  );
-};
-
 const loadConfig = () => {
   mp.options.read_options(PureMPV.options, "PureMPV");
-
-  if (!PureMPV.options.pure_mode) {
-    mp.remove_key_binding("generate-preview");
-    mp.remove_key_binding("set-endtime");
-  }
 
   if (PureMPV.options.copy_utility === "detect") {
     try {
@@ -40,6 +23,20 @@ const loadConfig = () => {
         PureMPV.options.copy_utility = "xclip";
       }
     }
+  }
+};
+
+const setKeybindings = () => {
+  mp.add_key_binding("ctrl+w", "get-file-path", getFilePath);
+  mp.add_key_binding("ctrl+e", "get-timestamp", getTimestamp);
+  mp.add_key_binding("ctrl+c", "get-crop", crop);
+  mp.add_key_binding("ctrl+p", "toggle-puremode", togglePureMode);
+
+  if (PureMPV.options.pure_mode) {
+    mp.add_key_binding("ctrl+shift+w", "generate-preview", preview);
+    mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
+      getTimestamp({ getEndTime: true })
+    );
   }
 };
 
@@ -140,7 +137,6 @@ const togglePureMode = () => {
   printMessage(status);
 };
 
-setKeybindings();
 loadConfig();
-
+setKeybindings();
 updateSharedData();
