@@ -1,32 +1,21 @@
-// Copyright (c) 2022-2023 4ndrs <andres.degozaru@gmail.com>
-// SPDX-License-Identifier: MIT
-
 /**
  * Returns a list of media stream urls if the source is known
  */
 const getStreamUrls = (path: string) => {
   const source = getSource(path);
+  const openStream = mp.get_property("stream-open-filename");
+
+  if (typeof openStream !== "string") {
+    throw new Error("Unable to retrieve the open stream");
+  }
+
+  const streams = openStream.split(";");
 
   switch (source) {
     case "youtube": {
-      const streams = (mp.get_property("stream-open-filename") as string).split(
-        ";"
-      );
-
-      const urls = [];
-      for (const stream of streams) {
-        if (stream.search("googlevideo") !== -1) {
-          const match = stream.match(/http.*/);
-          if (match !== null) {
-            urls.push(match[0]);
-          }
-        }
-      }
+      const urls = getUrls(streams, "googlevideo");
       return urls;
     }
-
-    default:
-      return;
   }
 };
 
@@ -37,5 +26,17 @@ const getSource = (path: string) => {
     return "youtube";
   }
 };
+
+const getUrls = (streams: string[], filter: string) =>
+  streams.reduce<string[]>((accumulator, stream) => {
+    const hasUrl = stream.match(/http[s]?:\/\/.+/);
+    const matchesFilter = stream.search(filter) !== -1;
+
+    if (matchesFilter && hasUrl) {
+      return [...accumulator, hasUrl[0]];
+    }
+
+    return accumulator;
+  }, []);
 
 export { getStreamUrls };

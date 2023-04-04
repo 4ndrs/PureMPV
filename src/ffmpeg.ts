@@ -65,25 +65,23 @@ const serializeInputs = (options = { subProcessMode: false }) => {
   }
 
   const urls = getStreamUrls(path);
-  const inputs = [];
+  const inputs: string[] = [];
 
   if (!urls) {
     throw new Error(
-      "ERROR: Unable to parse the stream urls. Source is unknown"
+      "FIX ME: Unable to parse the stream urls. Source is unknown"
     );
   }
 
-  for (const url of urls) {
+  urls.forEach((url) => {
     if (options.subProcessMode) {
       inputs.push(...timestamps.split(" "), "-i", `${url}`);
+    } else if (inputSeeking) {
+      inputs.push(`${timestamps} -i "${url}"`);
     } else {
-      if (inputSeeking) {
-        inputs.push(`${timestamps} -i "${url}"`);
-      } else {
-        inputs.push(`-i "${url}" ${timestamps}`);
-      }
+      inputs.push(`-i "${url}" ${timestamps}`);
     }
-  }
+  });
 
   return inputs;
 };
