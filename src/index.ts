@@ -5,7 +5,7 @@ import {
   getTimePosition,
 } from "./utils";
 
-import { preview, serialize, generateCommand } from "./ffmpeg";
+import { preview, generateCommand } from "./ffmpeg";
 import { updateSharedData } from "./shared";
 import { getCrop } from "./cropbox";
 
@@ -55,27 +55,18 @@ const crop = () => {
 };
 
 const getFilePath = () => {
-  const path = mp.get_property("path");
-
-  if (typeof path !== "string") {
-    throw new Error("Unable to retrieve the path");
-  }
-
   if (!PureMPV.options.pure_mode) {
+    const path = mp.get_property("path");
+
+    if (typeof path !== "string") {
+      throw new Error("Unable to retrieve the path");
+    }
+
     copyToSelection(path);
     return;
   }
 
-  const { inputs } = serialize(
-    path,
-    { isCropping: false },
-    false,
-    PureMPV.options.input_seeking,
-    PureMPV.timestamps.start,
-    PureMPV.timestamps.end
-  );
-
-  const command = generateCommand(inputs);
+  const command = generateCommand();
 
   copyToSelection(command);
 };

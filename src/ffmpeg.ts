@@ -4,8 +4,6 @@ import { boxIsSet } from "./cropbox";
 
 import PureMPV from "./purempv";
 
-import type { Box } from "./types";
-
 const preview = () => {
   printMessage("Processing preview");
 
@@ -21,14 +19,8 @@ const preview = () => {
     `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
     "-c:v libx264 -preset ultrafast - | mpv - --loop";
 
-  const { inputs, cropLavfi } = serialize(
-    path,
-    PureMPV.cropBox,
-    false,
-    true,
-    PureMPV.timestamps.start,
-    PureMPV.timestamps.end
-  );
+  const inputs = serializeInputs();
+  const cropLavfi = serializeCropBox();
 
   const mappings = inputs.map(
     (_input, index) => `-map ${index}:v? -map ${index}:a?`
@@ -41,57 +33,42 @@ const preview = () => {
   mp.commandv("run", "bash", "-c", `(${command})`);
 };
 
-const serialize = (
-  path: string,
-  cropBox: Box,
-  pureWebmMode: boolean,
-  inputSeeking: boolean,
-  startTime?: string,
-  endTime?: string
-) => {
-  const timestamps = serializeTimestamps(startTime, endTime);
-  const inputs = serializeInputs(path, timestamps, pureWebmMode, inputSeeking);
-  const cropLavfi = boxIsSet(cropBox) ? serializeCropBox(cropBox) : "";
-
-  return {
-    inputs: inputs,
-    cropLavfi: cropLavfi,
-  };
-};
-
-const generateCommand = (inputs: string[]) => {
+const generateCommand = () => {
   const program = PureMPV.options.executable;
   const params = PureMPV.options.ffmpeg_params;
-
-  const cropLavfi = serializeCropBox(PureMPV.cropBox);
+  const inputs = serializeInputs();
+  const cropLavfi = serializeCropBox();
 
   return `${program} ${inputs.join(" ")} ${cropLavfi} ${params}`.trim();
 };
 
-const serializeTimestamps = (start?: string, end?: string) =>
+const serializeTimestamps = ({ start, end }: typeof PureMPV.timestamps) =>
   `${start ? "-ss " + start : ""}${
     end ? (start ? " " : "") + "-to " + end : ""
   }`;
 
-const serializeInputs = (
-  path: string,
-  timestamps: string,
-  subProcessMode: boolean,
-  inputSeeking: boolean
-) => {
+const serializeInputs = (options = { subProcessMode: false }) => {
   // Note: in subprocess mode this function returns an array of inputs adapted
   // for running as subprocess's args, if it is off, each item will be pushed as
   // a single string with quoted input paths. The following is an example of a single item
   // with inputSeeking=true and subProcessMode=false:
   // '-ss start time -to stop time -i "input/file/path"'
+  const inputSeeking = PureMPV.options.input_seeking;
+  const timestamps = serializeTimestamps(PureMPV.timestamps);
+  const path = mp.get_property("path");
+
+  if (typeof path !== "string") {
+    throw new Error("Unable to retrieve path");
+  }
+
   const isStream = path.search("^http[s]?://") !== -1;
 
   if (!timestamps && !isStream) {
-    return subProcessMode ? ["-i", `${path}`] : [`-i "${path}"`];
+    return options.subProcessMode ? ["-i", `${path}`] : [`-i "${path}"`];
   }
 
   if (!isStream) {
-    return subProcessMode
+    return options.subProcessMode
       ? [...timestamps.split(" "), "-i", `${path}`]
       : inputSeeking
       ? [`${timestamps} -i "${path}"`]
@@ -108,7 +85,7 @@ const serializeInputs = (
   }
 
   for (const url of urls) {
-    if (subProcessMode) {
+    if (options.subProcessMode) {
       inputs.push(...timestamps.split(" "), "-i", `${url}`);
     } else {
       if (inputSeeking) {
@@ -122,7 +99,7 @@ const serializeInputs = (
   return inputs;
 };
 
-const serializeCropBox = (cropBox: Box) =>
-  boxIsSet(cropBox) ? `-lavfi crop=${cropBox.toString()}` : "";
+const serializeCropBox = () =>
+  boxIsSet(PureMPV.cropBox) ? `-lavfi crop=${PureMPV.cropBox.toString()}` : "";
 
-export { preview, generateCommand, serialize };
+export { preview, generateCommand };
