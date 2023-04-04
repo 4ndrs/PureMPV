@@ -1,5 +1,5 @@
+import { getPath, printMessage } from "./utils";
 import { getStreamUrls } from "./streams";
-import { printMessage } from "./utils";
 import { boxIsSet } from "./cropbox";
 
 import PureMPV from "./purempv";
@@ -7,20 +7,13 @@ import PureMPV from "./purempv";
 const preview = () => {
   printMessage("Processing preview");
 
-  const path = mp.get_property("path");
-
-  if (typeof path !== "string") {
-    throw new Error("Unable to get the path");
-  }
-
   const muteAudio = mp.get_property("mute") === "yes" ? "-an" : "";
+  const inputs = serializeInputs();
+  const cropLavfi = serializeCropBox();
 
   const params =
     `${muteAudio} -map_metadata -1 -map_chapters -1 -f matroska ` +
     "-c:v libx264 -preset ultrafast - | mpv - --loop";
-
-  const inputs = serializeInputs();
-  const cropLavfi = serializeCropBox();
 
   const mappings = inputs.map(
     (_input, index) => `-map ${index}:v? -map ${index}:a?`
@@ -55,11 +48,7 @@ const serializeInputs = (options = { subProcessMode: false }) => {
   // '-ss start time -to stop time -i "input/file/path"'
   const inputSeeking = PureMPV.options.input_seeking;
   const timestamps = serializeTimestamps(PureMPV.timestamps);
-  const path = mp.get_property("path");
-
-  if (typeof path !== "string") {
-    throw new Error("Unable to retrieve path");
-  }
+  const path = getPath();
 
   const isStream = path.search("^http[s]?://") !== -1;
 

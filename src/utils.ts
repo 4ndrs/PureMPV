@@ -99,6 +99,16 @@ const getTimePosition = () => {
   return new Date(timePos * 1000).toISOString().substring(11, 23);
 };
 
+const getPath = () => {
+  const path = mp.get_property("path");
+
+  if (typeof path !== "string") {
+    throw new Error("Unable to get the path");
+  }
+
+  return path;
+};
+
 /**
  * Prints the message to both the OSD and the console
  */
@@ -107,4 +117,10 @@ const printMessage = (message: string) => {
   print(message);
 };
 
-export { copyToSelection, getCopyUtility, getTimePosition, printMessage };
+export {
+  copyToSelection,
+  getCopyUtility,
+  getTimePosition,
+  printMessage,
+  getPath,
+};

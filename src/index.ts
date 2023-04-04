@@ -3,6 +3,7 @@ import {
   getCopyUtility,
   copyToSelection,
   getTimePosition,
+  getPath,
 } from "./utils";
 
 import { preview, generateCommand } from "./ffmpeg";
@@ -56,18 +57,13 @@ const crop = () => {
 
 const getFilePath = () => {
   if (!PureMPV.options.pure_mode) {
-    const path = mp.get_property("path");
-
-    if (typeof path !== "string") {
-      throw new Error("Unable to retrieve the path");
-    }
+    const path = getPath();
 
     copyToSelection(path);
     return;
   }
 
   const command = generateCommand();
-
   copyToSelection(command);
 };
 
