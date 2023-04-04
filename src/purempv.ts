@@ -8,6 +8,7 @@ const options: Options = {
   selection: "primary",
   copy_utility: "detect",
   hide_osc_on_crop: false,
+  box_color: "#FF1493",
 
   key_crop: "c",
   key_preview: "ctrl+shift+w",
@@ -26,10 +27,36 @@ const getKeys = () => ({
   timeEnd: options.key_timestamp_end,
 });
 
+const setBoxColor = () => {
+  const color = PureMPV.options.box_color.toUpperCase();
+  const isValidHexColor = /^#[0-9A-F]{6}$/.test(color);
+
+  if (!isValidHexColor) {
+    mp.msg.warn(`Invalid hex color: ${color}`);
+
+    const deepPink = "9314FF"; // #FF1493
+
+    PureMPV.cropBox.color = deepPink;
+
+    return;
+  }
+
+  const rgb = color.slice(1);
+
+  const red = `${rgb[0]}${rgb[1]}`;
+  const green = `${rgb[2]}${rgb[3]}`;
+  const blue = `${rgb[4]}${rgb[5]}`;
+
+  const bgr = blue + green + red;
+
+  PureMPV.cropBox.color = bgr;
+};
+
 const timestamps: { start?: string; end?: string } = {};
 
 const cropBox: Box = {
   isCropping: false,
+  color: "9314FF",
   toString() {
     return typeof this.w === "number" && typeof this.h === "number"
       ? `${cropBox.w}:${cropBox.h}:${cropBox.x}:${cropBox.y}`
@@ -37,6 +64,6 @@ const cropBox: Box = {
   },
 };
 
-const PureMPV = { options, getKeys, timestamps, cropBox };
+const PureMPV = { options, getKeys, setBoxColor, timestamps, cropBox };
 
 export default PureMPV;

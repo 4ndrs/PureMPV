@@ -128,8 +128,7 @@ const drawBox = () => {
     throw new Error("cropbox is not set");
   }
 
-  const deepPink = "9314FF"; // 0xFF1493
-  const borderColor = `{\\3c&${deepPink}&}`;
+  const borderColor = `{\\3c&${PureMPV.cropBox.color}&}`;
   const fillColor = "{\\1a&FF&}";
   const borderWidth = "{\\bord4}";
   const positionOffset = "{\\pos(0, 0)}";

@@ -129,4 +129,7 @@ const togglePureMode = () => {
 
 loadConfig();
 setKeybindings();
+
+PureMPV.setBoxColor();
+
 updateSharedData();

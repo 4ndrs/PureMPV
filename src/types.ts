@@ -6,6 +6,7 @@ export interface Options {
   selection: "primary" | "clipboard";
   copy_utility: "detect" | "xclip" | "wl-copy";
   hide_osc_on_crop: boolean;
+  box_color: string;
 
   key_crop: string;
   key_preview: string;
@@ -23,6 +24,7 @@ export interface Box {
   h?: number;
   x?: number;
   y?: number;
+  color: string;
   isCropping: boolean;
   toString: () => string;
 }
