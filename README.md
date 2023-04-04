@@ -22,11 +22,11 @@ It would probably be advisable to rename the ```main.js``` file when downloaded 
 
 The script by default registers the start and end times by pressing <kbd>ctrl</kbd> + <kbd>e</kbd>, and waits until the user presses <kbd>ctrl</kbd> + <kbd>w</kbd> to copy the data to the **primary** selection.
 
-The script can copy the following, by default (Pure Mode):
+The script can copy the following by default (PureMode):
 
-- Start time - <kbd>ctrl</kbd> + <kbd>e</kbd>
-- End time - <kbd>ctrl</kbd> + <kbd>e</kbd>
-- Cropping coordinates - <kbd>ctrl</kbd> + <kbd>c</kbd>
+- Start & end time - <kbd>ctrl</kbd> + <kbd>e</kbd>
+- End time - <kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>e</kbd>
+- Cropping coordinates - <kbd>c</kbd>
 - File path - <kbd>ctrl</kbd> + <kbd>w</kbd>
 
 To copy in this mode, triggering the file path combination is necessary. If none of the above key combinations are omitted (or cancelled), the copied string will be formatted like the following:
@@ -45,7 +45,7 @@ The default mode, and the selection to copy to can be changed creating a configu
 pure_mode=no
 selection=clipboard
 ```
-With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>ctrl</kbd> + <kbd>c</kbd> will copy just the cropping coordinates.
+With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>c</kbd> will copy just the cropping coordinates.
 
 Cropping coordinates, and set start & end times, can be cancelled by pressing their own key combination a third time.
 
@@ -54,7 +54,7 @@ A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd
 Output seeking can be enabled inserting ```input_seeking=no``` in the configuration file.
 
 ## Cropping
-To crop, it is necessary to put the mouse pointer in the starting position of the crop, before pressing <kbd>ctrl</kbd> + <kbd>c</kbd>. After that, pressing the key combination will start the cropping mode, position the mouse to the desired location to generate the cropping coordinates. To stop the cropping mode, press the key combination again. The cropbox will be set if PureMode is on, and just copied if it is off.
+To crop, it is necessary to put the mouse pointer in the starting position of the crop. After that, pressing the keybinding <kbd>c</kbd> will start the cropping mode; position the mouse to the desired location to generate the cropping coordinates. To stop the cropping mode, press the keybinding again. The cropbox will be set if PureMode is on, and just copied if it is off.
 
 ![vivycropbox_animation](https://user-images.githubusercontent.com/31898900/185887111-207cfa6b-610f-4952-a07e-58adafe7a3f9.gif)
 
@@ -87,14 +87,9 @@ An example of its usage can be seen in [pwebm-helper](https://github.com/4ndrs/p
 |<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>w</kbd>| ```generate-preview```| **PureMode**: Generate a preview of the currently set parameters.
 |<kbd>ctrl</kbd> + <kbd>e</kbd>| ```get-timestamp```| Copy the current time position with the format HH:MM:SS. <br />**PureMode**: Set the start time parameter if it is not set to the current time position, otherwise set the end time.
 |<kbd>ctrl</kbd> + <kbd>shift</kbd> + <kbd>e</kbd>| ```set-endtime```| **PureMode**: Set the end time parameter regardless of whether start time is set or not.
-|<kbd>ctrl</kbd> + <kbd>c</kbd>| ```get-crop```| Trigger cropping mode, and copy the cropped coordinates in the format W:H:X:Y.  <br />**PureMode**: Trigger cropping mode, and set the cropbox parameter.
+|<kbd>c</kbd>| ```get-crop```| Trigger cropping mode, and copy the cropped coordinates in the format W:H:X:Y.  <br />**PureMode**: Trigger cropping mode, and set the cropbox parameter.
 
-Keybindings can be changed using the names in this table and modifying your input.conf in```$HOME/.config/mpv/input.conf```. As an example, the following changes the keybinding <kbd>ctrl</kbd> + <kbd>c</kbd> for getting the cropping coordinates to <kbd>c</kbd>:
-
-```bash
-# Change PureMPV's keybinding ctrl-c to c
-c script-binding get-crop
-```
+Keybindings can be changed using the names in this table and modifying your `input.conf`, or changing the relevant option key in the [configuration file](#configuration-file).
 
 ## Configuration file
 
@@ -109,6 +104,17 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
 |input_seeking| yes<br>no| Specifies if we should assume ffmpeg input seeking in the copied string. Default is **yes**.
 
+
+##### Keybinding options
+|Option key|Details|
+|----------|------|
+|key_crop|  default: **c**
+|key_preview|  default: **ctrl+shift+w**
+|key_pure_mode|  default: **ctrl+p**
+|key_file_path|  default: **ctrl+w**
+|key_timestamp|  default: **ctrl+e**
+|key_timestamp_end|  default: **ctrl+shift+e**
+
 An example of the content of a configuration file could be the following:
 ```bash
 # ~/.config/mpv/script-opts/PureMPV.conf
@@ -118,6 +124,8 @@ selection=primary
 input_seeking=yes
 hide_osc_on_crop=yes
 ffmpeg_params=-map_metadata -1 -map_chapters -1 -f webm -row-mt 1 -speed 0 -c:v libvpx-vp9 -map 0:v -crf 10 -b:v 0 -pass 1 /dev/null -y&&\
+
+key_crop=ctrl+c
 ```
 
 
