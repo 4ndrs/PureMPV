@@ -3,7 +3,7 @@
 Script to get the timestamps, cropping coordinates, and file path of the playing video, for ffmpeg, all from within mpv.
 
 ## Installation
-The script currently only supports Linux, and depends on xclip/wl-clipboard to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
+The script currently only supports Linux, and depends on `xclip` or `wl-clipboard` to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
 ```console
 $ cd ~/.config/mpv/scripts
 $ git clone https://github.com/4ndrs/PureMPV.git
@@ -38,18 +38,18 @@ When omitting key combinations, the resulting string will have the values omitte
 ffmpeg -ss hh:mm:ss -i "/path/to/file"
 ```
 
-To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **Pure Mode** activated.
+To get just the end time the <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>e</kbd> key combination must be pressed with **PureMode** activated.
 
 The default mode, and the selection to copy to can be changed creating a configuration file under ```$HOME/.config/mpv/script-opts/``` with the name **PureMPV.conf**, and inserting the following:
 ```console
 pure_mode=no
 selection=clipboard
 ```
-With the Pure Mode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>c</kbd> will copy just the cropping coordinates.
+With the PureMode deactivated, the script will copy the resulting value of the key combination right away, without "ffmpeg -i", for example triggering <kbd>ctrl</kbd> + <kbd>e</kbd> will copy just the current timestamp, the <kbd>ctrl</kbd> + <kbd>w</kbd> will copy just the file path, and <kbd>c</kbd> will copy just the cropping coordinates.
 
 Cropping coordinates, and set start & end times, can be cancelled by pressing their own key combination a third time.
 
-A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>w</kbd> in Pure Mode.
+A preview of the currently set settings can be generated pressing <kbd>ctrl</kbd>+<kbd>shift</kbd>+<kbd>w</kbd> in PureMode.
 
 Output seeking can be enabled inserting ```input_seeking=no``` in the configuration file.
 
@@ -101,9 +101,9 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |ffmpeg_params| params| Specifies which params to append to the copied string. Default is **empty**.
 |selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
-|hide_osc_on_crop| yes<br>no| Specifies if we should hide the on screen controller when in cropping mode. Default is **no**.
-|input_seeking| yes<br>no| Specifies if we should assume ffmpeg input seeking in the copied string. Default is **yes**.
-|box_color| hex color | The color of the cropbox, represented as an #RRGGBB hexadecimal value. Default is **#FF1493**.
+|hide_osc_on_crop| yes<br>no| Specifies if the OSC (On Screen Controller) should be hidden when cropping. Default is **no**.
+|input_seeking| yes<br>no| Specifies if input seeking should be assumed when formatting the timestamps with the inputs. Default is **yes**.
+|box_color| hex color | Specifies the color of the cropbox represented as an #RRGGBB hexadecimal value. Default is **#FF1493**.
 
 
 ##### Keybinding options
