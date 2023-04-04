@@ -27,14 +27,16 @@ const loadConfig = () => {
 };
 
 const setKeybindings = () => {
-  mp.add_key_binding("ctrl+w", "get-file-path", getFilePath);
-  mp.add_key_binding("ctrl+e", "get-timestamp", getTimestamp);
-  mp.add_key_binding("ctrl+c", "get-crop", crop);
-  mp.add_key_binding("ctrl+p", "toggle-puremode", togglePureMode);
+  const keys = PureMPV.getKeys();
+
+  mp.add_key_binding(keys.path, "get-file-path", getFilePath);
+  mp.add_key_binding(keys.time, "get-timestamp", getTimestamp);
+  mp.add_key_binding(keys.crop, "get-crop", crop);
+  mp.add_key_binding(keys.mode, "toggle-puremode", togglePureMode);
 
   if (PureMPV.options.pure_mode) {
-    mp.add_key_binding("ctrl+shift+w", "generate-preview", preview);
-    mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
+    mp.add_key_binding(keys.preview, "generate-preview", preview);
+    mp.add_key_binding(keys.timeEnd, "set-endtime", () =>
       getTimestamp({ getEndTime: true })
     );
   }
@@ -120,11 +122,12 @@ const togglePureMode = () => {
   let status = "Pure Mode: ";
 
   if (PureMPV.options.pure_mode) {
+    const keys = PureMPV.getKeys();
+
     status += "ON";
 
-    mp.add_key_binding("ctrl+shift+w", "generate-preview", preview);
-
-    mp.add_key_binding("ctrl+shift+e", "set-endtime", () =>
+    mp.add_key_binding(keys.preview, "generate-preview", preview);
+    mp.add_key_binding(keys.timeEnd, "set-endtime", () =>
       getTimestamp({ getEndTime: true })
     );
   } else {
