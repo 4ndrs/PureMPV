@@ -17,7 +17,8 @@ It would probably be advisable to rename the ```main.js``` file when downloaded 
 
 ## Usage
 
-[usage_preview.webm](https://user-images.githubusercontent.com/31898900/202451097-d03b39ef-9661-46d9-8afc-a68b6b85c614.webm)
+[usage_preview.webm](https://github.com/4ndrs/PureMPV/assets/31898900/a6ac3832-e086-4d4e-90bd-e625578296e8)
+
 
 
 The script by default registers the start and end times by pressing <kbd>ctrl</kbd> + <kbd>e</kbd>, and waits until the user presses <kbd>ctrl</kbd> + <kbd>w</kbd> to copy the data to the **primary** selection.
