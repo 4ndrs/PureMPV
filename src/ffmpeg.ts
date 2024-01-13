@@ -16,11 +16,12 @@ const preview = () => {
     "-c:v libx264 -preset ultrafast - | mpv - --loop";
 
   const mappings = inputs.map(
-    (_input, index) => `-map ${index}:v? -map ${index}:a?`
+    (_input, index) =>
+      `-map ${index}:a?` + (cropLavfi ? "" : ` -map ${index}:v?`),
   );
 
   const command = `ffmpeg -hide_banner ${inputs.join(" ")} ${mappings.join(
-    " "
+    " ",
   )} ${cropLavfi} ${params}`;
 
   mp.commandv("run", "bash", "-c", `(${command})`);
@@ -69,7 +70,7 @@ const serializeInputs = (options = { subProcessMode: false }) => {
 
   if (!urls) {
     throw new Error(
-      "FIX ME: Unable to parse the stream urls. Source is unknown"
+      "FIX ME: Unable to parse the stream urls. Source is unknown",
     );
   }
 
