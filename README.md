@@ -101,7 +101,7 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |executable| executable | Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
 |ffmpeg_params| params| Specifies which params to append to the copied string. Default is **empty**.
 |selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.<sup>1</sup>
-|copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
+|copy_utility| detect<br>xclip<br>wl-copy<br>pbcopy| Specifies which utility to use to copy the string. Default is **detect**.
 |hide_osc_on_crop| yes<br>no| Specifies if the OSC (On Screen Controller) should be hidden when cropping. Default is **no**.
 |input_seeking| yes<br>no| Specifies if input seeking should be assumed when formatting the timestamps with the inputs. Default is **yes**.
 |box_color| hex color | Specifies the color of the cropbox represented as an #RRGGBB hexadecimal value. Default is **#FF1493**.
