@@ -3,7 +3,7 @@
 Script to get the timestamps, cropping coordinates, and file path of the playing video, for ffmpeg, all from within mpv.
 
 ## Installation
-The script currently only supports Linux, and depends on `xclip` or `wl-clipboard` to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
+The script currently supports Linux/macOS and depends on `xclip` or `wl-clipboard` on Linux and `pbcopy` on macOS to copy the data to the primary/clipboard selections. To install, change directory to your mpv scripts folder, and git clone this repository. An appropriate folder will be created:
 ```console
 $ cd ~/.config/mpv/scripts
 $ git clone https://github.com/4ndrs/PureMPV.git
@@ -100,12 +100,13 @@ The configuration file is located in ```$HOME/.config/mpv/script-opts/PureMPV.co
 |pure_mode| yes<br>no| Specifies if PureMode will be activated when running. Default is **yes**.
 |executable| executable | Specifies which program to prepend to the copied string in PureMode. Default is **ffmpeg**.
 |ffmpeg_params| params| Specifies which params to append to the copied string. Default is **empty**.
-|selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.
+|selection| primary<br>clipboard| Specifies where to copy the string. Default is **primary**.<sup>1</sup>
 |copy_utility| detect<br>xclip<br>wl-copy| Specifies which utility to use to copy the string. Default is **detect**.
 |hide_osc_on_crop| yes<br>no| Specifies if the OSC (On Screen Controller) should be hidden when cropping. Default is **no**.
 |input_seeking| yes<br>no| Specifies if input seeking should be assumed when formatting the timestamps with the inputs. Default is **yes**.
 |box_color| hex color | Specifies the color of the cropbox represented as an #RRGGBB hexadecimal value. Default is **#FF1493**.
 
+1. On macOS, the selection will always be `clipboard`.
 
 ##### Keybinding options
 |Option key|Details|
