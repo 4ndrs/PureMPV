@@ -3,10 +3,14 @@ import PureMPV from "./purempv";
 const copyToSelection = (text: string) => {
   let { copy_utility: copyUtility, selection } = PureMPV.options;
 
-  if (copyUtility !== "xclip" && copyUtility !== "wl-copy") {
+  if (
+    copyUtility !== "xclip" &&
+    copyUtility !== "wl-copy" &&
+    copyUtility !== "pbcopy"
+  ) {
     mp.msg.error(
       `ERROR: ${copyUtility} is not a known copy utility. ` +
-        "Possible values are: xclip, wl-copy"
+        "Possible values are: xclip, wl-copy, pbcopy"
     );
 
     print("INFO: setting copy utility to 'xclip'");
@@ -25,16 +29,26 @@ const copyToSelection = (text: string) => {
     selection = "primary";
   }
 
-  let args;
+  let args: string[];
 
-  if (copyUtility === "xclip") {
-    args = ["xclip", "-selection", selection];
-  } else {
-    args = ["wl-copy"];
+  switch (copyUtility) {
+    case "xclip":
+      args = ["xclip", "-selection", selection];
+      break;
+    case "wl-copy":
+      args = ["wl-copy"];
 
-    if (selection === "primary") {
-      args = [...args, "--primary"];
-    }
+      if (selection === "primary") {
+        args.push("--primary");
+      }
+
+      break;
+    case "pbcopy":
+      // pbcopy does not have a selection option, the clipboard is the default
+      args = ["pbcopy"];
+      break;
+    default:
+      return assertNever(copyUtility);
   }
 
   const { status } = mp.command_native({
@@ -81,8 +95,19 @@ const getCopyUtility = () => {
     return "wl-copy";
   }
 
+  const { status: pbCopyStatus } = mp.command_native({
+    name: "subprocess",
+    args: ["command", "-v", "pbcopy"],
+    detach: true,
+    capture_stdout: true,
+  }) as { status: number };
+
+  if (pbCopyStatus !== -3) {
+    return "pbcopy";
+  }
+
   throw new Error(
-    "No xclip/wl-clipboard found installed. Copying will not work."
+    "No xclip/wl-clipboard/pbcopy found installed. Copying will not work."
   );
 };
 
@@ -115,6 +140,10 @@ const getPath = () => {
 const printMessage = (message: string) => {
   mp.osd_message(message);
   print(message);
+};
+
+const assertNever = (value: never): never => {
+  throw new Error(`Unexpected value: ${value}`);
 };
 
 export {

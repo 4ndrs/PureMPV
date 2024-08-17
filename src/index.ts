@@ -25,6 +25,11 @@ const loadConfig = () => {
       }
     }
   }
+
+  if (PureMPV.options.copy_utility === "pbcopy") {
+    // pbcopy does not have a selection option, the clipboard is the default
+    PureMPV.options.selection = "clipboard";
+  }
 };
 
 const setKeybindings = () => {

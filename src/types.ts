@@ -4,7 +4,7 @@ export interface Options {
   ffmpeg_params: string;
   input_seeking: boolean;
   selection: "primary" | "clipboard";
-  copy_utility: "detect" | "xclip" | "wl-copy";
+  copy_utility: "detect" | "xclip" | "wl-copy" | "pbcopy";
   hide_osc_on_crop: boolean;
   box_color: string;
 
