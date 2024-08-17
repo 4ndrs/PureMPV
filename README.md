@@ -11,7 +11,8 @@ $ git clone https://github.com/4ndrs/PureMPV.git
 
 Or if just the script is preferred without downloading the whole source code, downloading the ```main.js``` file from the repository (or one of GitHub's automatic releases) and putting it in your mpv scripts folder is enough.
 
-Note: the ```main.js``` in the repository does not get updated on every commit. For a bleeding-edge release of the file, [click here](https://github.com/4ndrs/PureMPV/releases/download/bleeding-edge/main.js), or if cloned, see [Building](#building).
+>[!NOTE]
+>The ```main.js``` in the repository does not get updated on every commit. For a bleeding-edge release of the file, [click here](https://github.com/4ndrs/PureMPV/releases/download/bleeding-edge/main.js), or if cloned, see [Building](#building).
 
 It would probably be advisable to rename the ```main.js``` file when downloaded individually to avoid conflicts with other scripts in the folder.
 
