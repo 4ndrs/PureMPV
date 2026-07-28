@@ -29,7 +29,7 @@ const getSource = (path: string) => {
 
 const getUrls = (streams: string[], filter: string) =>
   streams.reduce<string[]>((accumulator, stream) => {
-    const hasUrl = stream.match(/http[s]?:\/\/.+/);
+    const hasUrl = stream.match(/https?:\/\/[^\s";]+/);
     const matchesFilter = stream.search(filter) !== -1;
 
     if (matchesFilter && hasUrl) {
